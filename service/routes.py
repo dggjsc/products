@@ -26,8 +26,8 @@ def index():
     """ Root URL response """
     return (
         # "Reminder: return some useful information in json format about the service here",
-        jsonify( Service = "products", Description = "represents the store items that the customer can buy", 
-        version = "1.0.0"),
+        jsonify( name = "products", paths=url_for("index", _external=True),
+        version = "1.0"),
         status.HTTP_200_OK,
     )
 
