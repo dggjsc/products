@@ -43,6 +43,7 @@ class TestYourResourceServer(TestCase):
     ######################################################################
 
     def test_index(self):
+        """It should call the Home Page"""
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
