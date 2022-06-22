@@ -7,7 +7,7 @@ import logging
 import unittest
 from service.models import Product, DataValidationError, db
 from service import app
-
+from tests.factories import ProductFactory
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
 )
@@ -48,14 +48,31 @@ class TestProduct(unittest.TestCase):
     def test_XXXX(self):
         """ It should always be true """
         self.assertTrue(True)
-    def test_create_a_product(self):
-        """It should Create a product and assert that it exists"""
-        product = Product(name="Cotton-Hemp Sweater", category="sweater", available=True, description="Relaxed fit sweater with long sleeves")
-        self.assertEqual(str(product), "<Product 'Cotton-Hemp Sweater' id=[None]>")
-        self.assertTrue(product is not None)
-        self.assertEqual(product.id, None)
-        self.assertEqual(product.name, "Cotton-Hemp Sweater")
-        self.assertEqual(product.category, "sweater")
-        self.assertEqual(product.available, True)
-        product = Product(name="Cotton-Hemp Sweater", category="sweater", available=False, description="Relaxed fit sweater with long sleeves")
-        self.assertEqual(product.available, False)
+    def test_serialize_a_pet(self):
+        """It should serialize a Pet"""
+        product = ProductFactory()
+        data = product.serialize()
+        self.assertNotEqual(data, None)
+        self.assertIn("id", data)
+        self.assertEqual(data["id"], product.id)
+        self.assertIn("name", data)
+        self.assertEqual(data["name"], product.name)
+        self.assertIn("category", data)
+        self.assertEqual(data["category"], product.category)
+        self.assertIn("description", data)
+        self.assertEqual(data["description"], product.description)
+        self.assertIn("price", data)
+        self.assertEqual(data["price"], product.price)
+        self.assertIn("available", data)
+        self.assertEqual(data["available"], product.available)
+    # def test_create_a_product(self):
+    #     """It should Create a product and assert that it exists"""
+    #     product = Product(name="Cotton-Hemp Sweater", category="sweater", available=True, gender=men)
+    #     self.assertEqual(str(product), "<Product 'Cotton-Hemp Sweater' id=[None]>")
+    #     self.assertTrue(product is not None)
+    #     self.assertEqual(product.id, None)
+    #     self.assertEqual(product.name, "Cotton-Hemp Sweater")
+    #     self.assertEqual(product.category, "sweater")
+    #     self.assertEqual(product.available, True)
+    #     product = Product(name="Cotton-Hemp Sweater", category="sweater", available=False, gender=men)
+    #     self.assertEqual(product.available, False)

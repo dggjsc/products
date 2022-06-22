@@ -19,10 +19,16 @@ class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
     pass
+# class Gender(Enum):
+#     """Enumeration of valid Pet Genders"""
+
+#     MEN = 0
+#     WOMEN = 1
+#     UNISEX = 3
 
 class Product(db.Model):
     """
-    Class that represents a YourResourceModel
+    Class that represents a product
     """
 
     app = None
@@ -30,8 +36,12 @@ class Product(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    description = db.Column(db.String(63), nullable = False)
+    description = db.Column(db.String(63), nullable=True, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
+    price = db.Column(db.Float(6),nullable=False)
+    # gender = db.Column(
+    #     db.Enum(Gender), nullable=False, server_default=(Gender.UNISEX.name)
+    # )
     available = db.Column(db.Boolean(), nullable=False, default=False)
 
     def __repr__(self):
@@ -61,7 +71,14 @@ class Product(db.Model):
 
     def serialize(self):
         """ Serializes a product into a dictionary """
-        return {"id": self.id, "name": self.name, "description": self.description, "category": self.category, "available": self.available}
+        return {"id": self.id, 
+                "name": self.name,
+                "description": self.description,
+                 "category": self.category,
+                 "price": self.price,
+                #  "gender": self.gender.name,
+                 "available": self.available
+                 }
 
     def deserialize(self, data):
         """
@@ -80,6 +97,7 @@ class Product(db.Model):
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
+            # self.gender = getattr(Gender, data["gender"])
         except KeyError as error:
             raise DataValidationError(
                 "Invalid product: missing " + error.args[0]
