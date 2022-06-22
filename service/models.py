@@ -32,10 +32,7 @@ class Product(db.Model):
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(db.String(63), nullable=True, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
-    price = db.Column(db.Float(2),nullable=False)
-    # gender = db.Column(
-    #     db.Enum(Gender), nullable=False, server_default=(Gender.UNISEX.name)
-    # )
+    price = db.Column(db.Float(),nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
 
     def __repr__(self):
@@ -70,7 +67,6 @@ class Product(db.Model):
                 "description": self.description,
                  "category": self.category,
                  "price": self.price,
-                #  "gender": self.gender.name,
                  "available": self.available
                  }
 
@@ -85,7 +81,13 @@ class Product(db.Model):
             self.name = data["name"]
             self.description = data["description"]
             self.category = data["category"]
-            self.price = data["price"]
+            if isinstance(data["price"], float):  
+                self.price = data["price"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for float [price]: "
+                    + str(type(data["price"]))
+                )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
@@ -93,7 +95,6 @@ class Product(db.Model):
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
-            # self.gender = getattr(Gender, data["gender"])
         except KeyError as error:
             raise DataValidationError(
                 "Invalid product: missing " + error.args[0]
