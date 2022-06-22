@@ -47,7 +47,7 @@ class TestYourResourceServer(TestCase):
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data["name"], "products")
+        self.assertEqual(data["name"], "Product REST API Service")
         self.assertEqual(data["version"], "1.0")
         self.assertEqual(data["paths"], "http://localhost/products") #the test fails for now, because the url doesn't exist yet.
         
