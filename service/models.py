@@ -4,8 +4,10 @@ Models for Product
 All of the models are stored in this module
 """
 import logging
-from unicodedata import category
+# from unicodedata import category
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
 
 logger = logging.getLogger("flask.app")
 
@@ -18,15 +20,12 @@ def init_db(app):
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
-    pass
+    # pass
 
 class Product(db.Model):
     """
     Class that represents a product
     """
-
-    app = None
-
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
@@ -49,9 +48,11 @@ class Product(db.Model):
 
     def update(self):
         """
-        Updates a product to the database
+        Updates a Pet to the database
         """
         logger.info("Saving %s", self.name)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
@@ -60,7 +61,7 @@ class Product(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def serialize(self):
+    def serialize(self) -> dict:
         """ Serializes a product into a dictionary """
         return {"id": self.id, 
                 "name": self.name,
@@ -70,7 +71,7 @@ class Product(db.Model):
                  "available": self.available
                  }
 
-    def deserialize(self, data):
+    def deserialize(self, data: dict):
         """
         Deserializes a product from a dictionary
 
@@ -95,18 +96,21 @@ class Product(db.Model):
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError(
-                "Invalid product: missing " + error.args[0]
-            )
+            raise DataValidationError("Invalid product: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
-                "Invalid product: body of request contained bad or no data"
+                "Invalid product: body of request contained bad or no data " + str(error)
             )
         return self
 
+##################################################
+# CLASS METHODS
+##################################################
     @classmethod
-    def init_db(cls, app):
+    def init_db(cls, app: Flask):
         """ Initializes the database session """
         logger.info("Initializing database")
         cls.app = app
@@ -127,6 +131,19 @@ class Product(db.Model):
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get_or_404(by_id)
 
+    @classmethod
+    def find_or_404(cls, product_id: int):
+        """Find a Pet by it's id
+
+        :param pet_id: the id of the Pet to find
+        :type pet_id: int
+
+        :return: an instance with the pet_id, or 404_NOT_FOUND if not found
+        :rtype: Pet
+
+        """
+        logger.info("Processing lookup or 404 for id %s ...", product_id)
+        return cls.query.get_or_404(product_id)
     @classmethod
     def find_by_name(cls, name):
         """Returns all products with the given name

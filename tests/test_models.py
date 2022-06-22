@@ -5,9 +5,11 @@ Test cases for Product Model
 import os
 import logging
 import unittest
+from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
 from tests.factories import ProductFactory
+
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
 )
@@ -79,3 +81,16 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.price, data["price"])
         self.assertEqual(product.available, data["available"])
 
+    def test_deserialize_missing_data(self):
+        """It should not deserialize a Product with missing data"""
+        data = {"id": 1, "name": "shirt", "description": "Relaxed Fit"}
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_data(self):
+        """It should not deserialize bad data"""
+        data = "this is not a dictionary"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    # def test_find_or_404_not_found(self):
+    #     """It should return 404 not found"""
+    #     self.assertRaises(NotFound, Product.find_or_404, 0)
