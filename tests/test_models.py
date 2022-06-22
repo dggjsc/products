@@ -65,3 +65,17 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["price"], product.price)
         self.assertIn("available", data)
         self.assertEqual(data["available"], product.available)
+        
+    def test_deserialize_a_pet(self):
+        """It should de-serialize a Pet"""
+        data = ProductFactory().serialize()
+        product = Product()
+        product.deserialize(data)
+        self.assertNotEqual(product, None)
+        self.assertEqual(product.id, None)
+        self.assertEqual(product.name, data["name"])
+        self.assertEqual(product.description, data["description"])
+        self.assertEqual(product.category, data["category"])
+        self.assertEqual(product.price, data["price"])
+        self.assertEqual(product.available, data["available"])
+
