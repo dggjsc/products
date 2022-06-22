@@ -1,5 +1,5 @@
 """
-Models for YourResourceModel
+Models for Product
 
 All of the models are stored in this module
 """
@@ -19,12 +19,6 @@ class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
     pass
-# class Gender(Enum):
-#     """Enumeration of valid Pet Genders"""
-
-#     MEN = 0
-#     WOMEN = 1
-#     UNISEX = 3
 
 class Product(db.Model):
     """
@@ -89,7 +83,9 @@ class Product(db.Model):
         """
         try:
             self.name = data["name"]
+            self.description = data["description"]
             self.category = data["category"]
+            self.price = data["price"]
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
