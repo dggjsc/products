@@ -1,17 +1,17 @@
 """
-Test cases for YourResourceModel Model
+Test cases for Product Model
 
 """
 import os
 import logging
 import unittest
-from service.models import YourResourceModel, DataValidationError, db
+from service.models import Product, DataValidationError, db
 
 ######################################################################
-#  <your resource name>   M O D E L   T E S T   C A S E S
+#  Product   M O D E L   T E S T   C A S E S
 ######################################################################
 class TestYourResourceModel(unittest.TestCase):
-    """ Test Cases for YourResourceModel Model """
+    """ Test Cases for Product Model """
 
     @classmethod
     def setUpClass(cls):
@@ -38,3 +38,16 @@ class TestYourResourceModel(unittest.TestCase):
     def test_XXXX(self):
         """ It should always be true """
         self.assertTrue(True)
+    def test_create_a_pet(self):
+        """It should Create a product and assert that it exists"""
+        product = Product(name="Cotton-Hemp Sweater", category="clothes", available=True, description="Relaxed fit sweater with long sleeves")
+        self.assertEqual(str(product), "<Product 'Cotton-Hemp Sweater' id=[None]>")
+        self.assertTrue(product is not None)
+        self.assertEqual(product.id, None)
+        self.assertEqual(product.name, "Fido")
+        self.assertEqual(product.category, "dog")
+        self.assertEqual(product.available, True)
+        self.assertEqual(product.gender, Gender.MALE)
+        product = Product(name="Fido", category="dog", available=False, gender=Gender.FEMALE)
+        self.assertEqual(product.available, False)
+        self.assertEqual(product.gender, Gender.FEMALE)
