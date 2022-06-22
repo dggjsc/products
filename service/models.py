@@ -38,7 +38,7 @@ class Product(db.Model):
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(db.String(63), nullable=True, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
-    price = db.Column(db.Float(6),nullable=False)
+    price = db.Column(db.Float(2),nullable=False)
     # gender = db.Column(
     #     db.Enum(Gender), nullable=False, server_default=(Gender.UNISEX.name)
     # )

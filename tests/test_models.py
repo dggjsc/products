@@ -48,8 +48,8 @@ class TestProduct(unittest.TestCase):
     def test_XXXX(self):
         """ It should always be true """
         self.assertTrue(True)
-    def test_serialize_a_pet(self):
-        """It should serialize a Pet"""
+    def test_serialize_a_product(self):
+        """It should serialize a Product"""
         product = ProductFactory()
         data = product.serialize()
         self.assertNotEqual(data, None)
@@ -65,14 +65,3 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["price"], product.price)
         self.assertIn("available", data)
         self.assertEqual(data["available"], product.available)
-    # def test_create_a_product(self):
-    #     """It should Create a product and assert that it exists"""
-    #     product = Product(name="Cotton-Hemp Sweater", category="sweater", available=True, gender=men)
-    #     self.assertEqual(str(product), "<Product 'Cotton-Hemp Sweater' id=[None]>")
-    #     self.assertTrue(product is not None)
-    #     self.assertEqual(product.id, None)
-    #     self.assertEqual(product.name, "Cotton-Hemp Sweater")
-    #     self.assertEqual(product.category, "sweater")
-    #     self.assertEqual(product.available, True)
-    #     product = Product(name="Cotton-Hemp Sweater", category="sweater", available=False, gender=men)
-    #     self.assertEqual(product.available, False)

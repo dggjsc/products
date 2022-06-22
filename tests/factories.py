@@ -11,18 +11,6 @@ import random
 
 MIN_PRICE = 10.00
 MAX_PRICE = 300.00
-# pants = DynamicProvider(
-#      provider_name="pants",
-#      elements=["Jeans", "Jogger", "dress pants", "pajamas"],
-# )
-# sweater = DynamicProvider(
-#     provider_name="sweater",
-#     elements=["lounge wear", "Cardigan", "Blazer", "Crew-Neck" ]
-# )
-# shirts = DynamicProvider(
-#     provider_name="shirts"
-#     elements=["Dress shirts", "Casual Shirts"]
-# )
 class ProductFactory(factory.Factory):
     """Creates fake products"""
 
@@ -35,7 +23,5 @@ class ProductFactory(factory.Factory):
     name = FuzzyChoice(choices=["shirt", "sweater", "pants", "lounge_wear"])
     description = FuzzyChoice(choices=["unavailable", "Relaxed Fit", "Slim Fit"])
     category = FuzzyChoice(choices=["men's clothing", "women's clothing"])
-    price = factory.LazyAttribute(random.randrange(MIN_PRICE, MAX_PRICE + 1))
-    
-    # gender = FuzzyChoice(choices=[Gender.MEN, Gender.WOMEN, Gender.UNISEX])
+    price = round(random.uniform(MIN_PRICE, MAX_PRICE), 2)
     available = FuzzyChoice(choices=[True, False])
