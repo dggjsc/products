@@ -17,7 +17,7 @@ db = SQLAlchemy()
 def init_db(app):
     """Initialize the SQLAlchemy app"""
     Product.init_db(app)
-#Defining acceptable input for names and descriptions
+# Defining acceptable input for names and descriptions
 def acceptable_names():
     return ["shirt", "sweater", "pants", "lounge_wear"]
 def acceptable_description():
