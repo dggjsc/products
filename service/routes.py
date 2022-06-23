@@ -13,7 +13,7 @@ from .utils import status  # HTTP Status Codes
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import YourResourceModel, DataValidationError
+from service.models import Product, DataValidationError
 
 # Import Flask application
 from . import app
@@ -26,8 +26,8 @@ def index():
     """ Root URL response """
     return (
         # "Reminder: return some useful information in json format about the service here",
-        jsonify( name = "Product REST API Service", paths=url_for("index", _external=True),
-        version = "1.0"),
+        jsonify(name="Product REST API Service", paths=url_for("index", _external=True),
+        version="1.0"),
         status.HTTP_200_OK,
     )
 
@@ -40,4 +40,4 @@ def index():
 def init_db():
     """ Initializes the SQLAlchemy app """
     global app
-    YourResourceModel.init_db(app)
+    Product.init_db(app)
