@@ -2,10 +2,10 @@
 Test cases for Product Model
 
 """
-# import os
-# import logging
+import os
+import logging
 import unittest
-from werkzeug.exceptions import NotFound
+# from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
 from tests.factories import ProductFactory
@@ -16,6 +16,8 @@ DATABASE_URI = os.getenv(
 ######################################################################
 #  Product   M O D E L   T E S T   C A S E S
 ######################################################################
+
+
 class TestProduct(unittest.TestCase):
     """ Test Cases for Product Model """
 
@@ -50,6 +52,7 @@ class TestProduct(unittest.TestCase):
     def test_XXXX(self):
         """ It should always be true """
         self.assertTrue(True)
+
     def test_serialize_a_product(self):
         """It should serialize a Product"""
         product = ProductFactory()
@@ -86,11 +89,13 @@ class TestProduct(unittest.TestCase):
         data = {"id": 1, "name": "shirt", "description": "Relaxed Fit"}
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_data(self):
         """It should not deserialize bad data"""
         data = "this is not a dictionary"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_available(self):
         """It should not deserialize a bad available attribute"""
         test_product = ProductFactory()
@@ -98,6 +103,7 @@ class TestProduct(unittest.TestCase):
         data["available"] = "true"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_price(self):
         """It should not deserialize a bad price attribute"""
         test_product = ProductFactory()

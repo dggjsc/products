@@ -4,26 +4,35 @@ Models for Product
 All of the models are stored in this module
 """
 import logging
-from wsgiref import validate
+# from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-MAX_PRICE=10.00
-MIN_PRICE=100.00
+MAX_PRICE = 10.00
+MIN_PRICE = 100.00
 
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
+
+
 def init_db(app):
     """Initialize the SQLAlchemy app"""
     Product.init_db(app)
 # Defining acceptable input for names and descriptions
+
+
 def acceptable_names():
     return ["shirt", "sweater", "pants", "lounge_wear"]
+
+
 def acceptable_description():
     return ["unavailable", "Relaxed Fit", "Slim Fit"]
+
+
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
+
 
 class Product(db.Model):
     """
@@ -34,9 +43,10 @@ class Product(db.Model):
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(db.String(63), nullable=True, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
-    price = db.Column(db.Float(),nullable=False)
+    price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
     # Just an Idea to test for correct input. delete the function later if it's not used
+
     def validate_product(self):
         if self.name not in acceptable_names:
             raise DataValidationError("Invalid Name")
@@ -44,6 +54,7 @@ class Product(db.Model):
             raise DataValidationError("Invalid Description")
         elif self.price < MIN_PRICE or self.price > MAX_PRICE:
             raise DataValidationError("Price is not within the range")
+
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
 
@@ -73,13 +84,13 @@ class Product(db.Model):
 
     def serialize(self) -> dict:
         """ Serializes a product into a dictionary """
-        return {"id": self.id, 
+        return {"id": self.id,
                 "name": self.name,
                 "description": self.description,
-                 "category": self.category,
-                 "price": self.price,
-                 "available": self.available
-                 }
+                "category": self.category,
+                "price": self.price,
+                "available": self.available
+                }
 
     def deserialize(self, data: dict):
         """
@@ -92,7 +103,7 @@ class Product(db.Model):
             self.name = data["name"]
             self.description = data["description"]
             self.category = data["category"]
-            if isinstance(data["price"], float):  
+            if isinstance(data["price"], float):
                 self.price = data["price"]
             else:
                 raise DataValidationError(
@@ -155,6 +166,7 @@ class Product(db.Model):
         """
         logger.info("Processing lookup or 404 for id %s ...", product_id)
         return cls.query.get_or_404(product_id)
+
     @classmethod
     def find_by_name(cls, name):
         """Returns all products with the given name
