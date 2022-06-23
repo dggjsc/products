@@ -17,6 +17,7 @@ db = SQLAlchemy()
 def init_db(app):
     """Initialize the SQLAlchemy app"""
     Product.init_db(app)
+#Defining acceptable input for names and descriptions
 def acceptable_names():
     return ["shirt", "sweater", "pants", "lounge_wear"]
 def acceptable_description():
@@ -35,6 +36,7 @@ class Product(db.Model):
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(),nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
+    # Just an Idea to test for correct input. delete the function later if it's not used
     def validate_product(self):
         if self.name not in acceptable_names:
             raise DataValidationError("Invalid Name")
