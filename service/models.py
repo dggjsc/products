@@ -4,10 +4,11 @@ Models for Product
 All of the models are stored in this module
 """
 import logging
-# from unicodedata import category
+from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+MAX_PRICE=10.00
+MIN_PRICE=100.00
 
 logger = logging.getLogger("flask.app")
 
@@ -16,7 +17,10 @@ db = SQLAlchemy()
 def init_db(app):
     """Initialize the SQLAlchemy app"""
     Product.init_db(app)
-
+def acceptable_names():
+    return ["shirt", "sweater", "pants", "lounge_wear"]
+def acceptable_description():
+    return ["unavailable", "Relaxed Fit", "Slim Fit"]
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
@@ -33,7 +37,13 @@ class Product(db.Model):
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(),nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
-
+    # def validate_product(self):
+    #     if self.name not in acceptable_names:
+    #         raise DataValidationError("Invalid Name")
+    #     elif self.description not in acceptable_description:
+    #         raise DataValidationError("Invalid Description")
+    #     elif self.price < MIN_PRICE or self.price > MAX_PRICE:
+    #         raise DataValidationError("Price is not within the range")
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
 

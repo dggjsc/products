@@ -6,11 +6,9 @@ import factory
 from factory.fuzzy import FuzzyChoice, FuzzyDate
 from faker import Faker
 from faker.providers import DynamicProvider
-from service.models import Product
+from service.models import Product, MAX_PRICE, MIN_PRICE
 import random
 
-MIN_PRICE = 10.00
-MAX_PRICE = 300.00
 class ProductFactory(factory.Factory):
     """Creates fake products"""
 

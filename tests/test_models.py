@@ -91,6 +91,18 @@ class TestProduct(unittest.TestCase):
         data = "this is not a dictionary"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_available(self):
+        """It should not deserialize a bad available attribute"""
+        test_pet = ProductFactory()
+        data = test_pet.serialize()
+        data["available"] = "true"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    # def test_invalid_name(self):
+    #     """It should not make a product with invalid name"""
+    #     data = {"id": 1, "name": "shoes", "description": "Relaxed Fit", "category":"men's clothing", "available":True}
+    #     product = Product()
+    #     self.assertRaises(DataValidationError, , data)
     # def test_find_or_404_not_found(self):
     #     """It should return 404 not found"""
     #     self.assertRaises(NotFound, Product.find_or_404, 0)
