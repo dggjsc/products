@@ -38,4 +38,4 @@ def index():
 def init_db():
     """ Initializes the SQLAlchemy app """
     global app
-    YourResourceModel.init_db(app)
+    Product.init_db(app)
