@@ -24,8 +24,6 @@ def acceptable_description():
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
-    # pass
-
 class Product(db.Model):
     """
     Class that represents a product
@@ -37,13 +35,13 @@ class Product(db.Model):
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(),nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
-    # def validate_product(self):
-    #     if self.name not in acceptable_names:
-    #         raise DataValidationError("Invalid Name")
-    #     elif self.description not in acceptable_description:
-    #         raise DataValidationError("Invalid Description")
-    #     elif self.price < MIN_PRICE or self.price > MAX_PRICE:
-    #         raise DataValidationError("Price is not within the range")
+    def validate_product(self):
+        if self.name not in acceptable_names:
+            raise DataValidationError("Invalid Name")
+        elif self.description not in acceptable_description:
+            raise DataValidationError("Invalid Description")
+        elif self.price < MIN_PRICE or self.price > MAX_PRICE:
+            raise DataValidationError("Price is not within the range")
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
 
