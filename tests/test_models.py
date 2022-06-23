@@ -2,10 +2,11 @@
 Test cases for YourResourceModel Model
 
 """
-import os
-import logging
+# import os
+# import logging
 import unittest
-from service.models import YourResourceModel, DataValidationError, db
+# from service.models import YourResourceModel, DataValidationError, db
+
 
 ######################################################################
 #  <your resource name>   M O D E L   T E S T   C A S E S
