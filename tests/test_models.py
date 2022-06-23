@@ -68,7 +68,7 @@ class TestProduct(unittest.TestCase):
         self.assertIn("available", data)
         self.assertEqual(data["available"], product.available)
 
-    def test_deserialize_a_pet(self):
+    def test_deserialize_a_product(self):
         """It should de-serialize a Product"""
         data = ProductFactory().serialize()
         product = Product()
@@ -93,9 +93,16 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
     def test_deserialize_bad_available(self):
         """It should not deserialize a bad available attribute"""
-        test_pet = ProductFactory()
-        data = test_pet.serialize()
+        test_product = ProductFactory()
+        data = test_product.serialize()
         data["available"] = "true"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_price(self):
+        """It should not deserialize a bad price attribute"""
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["price"] = "string!"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     # def test_invalid_name(self):
