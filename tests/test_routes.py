@@ -50,4 +50,3 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["name"], "Product REST API Service")
         self.assertEqual(data["version"], "1.0")
         self.assertEqual(data["paths"], "http://localhost/")
-        # The test fails for now, because the url doesn't exist yet.
