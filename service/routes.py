@@ -10,7 +10,7 @@ Describe what your service does here
 # from flask import Flask, request, url_for, jsonify, make_response, abort
 from flask import url_for, jsonify
 from .utils import status  # HTTP Status Codes
-# from service.models import YourResourceModel
+from service.models import Product
 
 # Import Flask application
 from . import app
@@ -34,3 +34,7 @@ def index():
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+def init_db():
+    """ Initializes the SQLAlchemy app """
+    global app
+    Product.init_db(app)
