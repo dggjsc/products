@@ -7,8 +7,8 @@ import logging
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-MAX_PRICE = 10.00
-MIN_PRICE = 100.00
+MIN_PRICE = 10.00
+MAX_PRICE = 100.00
 
 logger = logging.getLogger("flask.app")
 
