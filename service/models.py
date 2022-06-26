@@ -41,10 +41,11 @@ class Product(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    description = db.Column(db.String(63), nullable=True, server_default=("unavailable"))
+    description = db.Column(db.String(63), nullable=False, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
+    rating = db.Column(db.Integer(), nullable =False)
     # Just an Idea to test for correct input. delete the function later if it's not used
 
     def validate_product(self):
