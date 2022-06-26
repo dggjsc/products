@@ -2,10 +2,7 @@
 Test Factory to make fake objects for testing
 """
 import factory
-# from datetime import date
-from factory.fuzzy import FuzzyChoice  # FuzzyDate
-# from faker import Faker
-# from faker.providers import DynamicProvider
+from factory.fuzzy import FuzzyChoice
 from service.models import Product, MAX_PRICE, MIN_PRICE
 import random
 

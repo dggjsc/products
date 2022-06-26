@@ -53,7 +53,7 @@ class TestProduct(unittest.TestCase):
 
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
-        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0)
+        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating = 3)
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -61,7 +61,8 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.category, "men's clothing")
         self.assertEqual(product.available, True)
         self.assertEqual(product.description, "relaxed")
-        self.assertEqual(product.rating, "3")
+        self.assertEqual(product.price, 20.0)
+        self.assertEqual(product.rating, 3)
 
     def test_XXXX(self):
         """ It should always be true """
@@ -128,11 +129,18 @@ class TestProduct(unittest.TestCase):
         data["price"] = "string!"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
-    def test_deserialize_bad_Price(self):
+    def test_deserialize_bad_Price_2(self):
         """It should not deserialize a price that exceeds the max price"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["price"] = 1000.0
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_Price_3(self):
+        """It should not deserialize a price that is smaller than the min price"""
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["price"] = -10.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     # def test_invalid_name(self):

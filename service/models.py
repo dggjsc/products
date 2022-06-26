@@ -7,7 +7,7 @@ import logging
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from tomlkit import integer
+# from tomlkit import integer
 MIN_PRICE = 10.00
 MAX_PRICE = 100.00
 MIN_RATE = 0
@@ -47,8 +47,7 @@ class Product(db.Model):
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
-    rating = db.Column(db.Integer(), nullable =False)
-    # Just an Idea to test for correct input. delete the function later if it's not used
+    rating = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
@@ -101,11 +100,12 @@ class Product(db.Model):
             self.category = data["category"]
             if isinstance(data["price"], float):
                 if data["price"] >= MIN_PRICE and data["price"] <= MAX_PRICE:
+                    self.price = data["price"]
+                else:
                     raise DataValidationError(
-                    "Invalid range for [price]: "
-                    + str(data["price"])
-                )
-                self.price = data["price"]
+                        "Invalid range for [price]: "
+                        + str(data["price"])
+                    )
             else:
                 raise DataValidationError(
                     "Invalid type for float [price]: "
@@ -123,10 +123,10 @@ class Product(db.Model):
                     self.rating = data["rating"]
                 else:
                     raise DataValidationError(
-                    "Invalid range for [rating]: "
-                    + str(data["rating"])
-                )
-            else: 
+                        "Invalid range for [rating]: "
+                        + str(data["rating"])
+                    )
+            else:
                 raise DataValidationError(
                     "Invalid type for [rating]: "
                     + str(type(data["rating"]))
