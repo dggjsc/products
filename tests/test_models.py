@@ -61,6 +61,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.category, "men's clothing")
         self.assertEqual(product.available, True)
         self.assertEqual(product.description, "relaxed")
+        self.assertEqual(product.rating, "3")
 
     def test_XXXX(self):
         """ It should always be true """
@@ -83,6 +84,8 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["price"], product.price)
         self.assertIn("available", data)
         self.assertEqual(data["available"], product.available)
+        self.assertIn("rating", data)
+        self.assertEqual(data["rating"], product.rating)
 
     def test_deserialize_a_product(self):
         """It should de-serialize a Product"""
@@ -96,6 +99,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.category, data["category"])
         self.assertEqual(product.price, data["price"])
         self.assertEqual(product.available, data["available"])
+        self.assertEqual(product.rating, data["rating"])
 
     def test_deserialize_missing_data(self):
         """It should not deserialize a Product with missing data"""
@@ -122,6 +126,13 @@ class TestProduct(unittest.TestCase):
         test_product = ProductFactory()
         data = test_product.serialize()
         data["price"] = "string!"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_Price(self):
+        """It should not deserialize a price that exceeds the max price"""
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["price"] = 1000.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     # def test_invalid_name(self):

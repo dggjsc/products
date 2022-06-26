@@ -7,9 +7,11 @@ import logging
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from tomlkit import integer
 MIN_PRICE = 10.00
 MAX_PRICE = 100.00
-
+MIN_RATE = 0
+MAX_RATE = 5
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
@@ -48,14 +50,6 @@ class Product(db.Model):
     rating = db.Column(db.Integer(), nullable =False)
     # Just an Idea to test for correct input. delete the function later if it's not used
 
-    def validate_product(self):
-        if self.name not in acceptable_names:
-            raise DataValidationError("Invalid Name")
-        elif self.description not in acceptable_description:
-            raise DataValidationError("Invalid Description")
-        elif self.price < MIN_PRICE or self.price > MAX_PRICE:
-            raise DataValidationError("Price is not within the range")
-
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
 
@@ -90,7 +84,8 @@ class Product(db.Model):
                 "description": self.description,
                 "category": self.category,
                 "price": self.price,
-                "available": self.available
+                "available": self.available,
+                "rating": self.rating
                 }
 
     def deserialize(self, data: dict):
@@ -105,6 +100,11 @@ class Product(db.Model):
             self.description = data["description"]
             self.category = data["category"]
             if isinstance(data["price"], float):
+                if data["price"] >= MIN_PRICE and data["price"] <= MAX_PRICE:
+                    raise DataValidationError(
+                    "Invalid range for [price]: "
+                    + str(data["price"])
+                )
                 self.price = data["price"]
             else:
                 raise DataValidationError(
@@ -118,13 +118,26 @@ class Product(db.Model):
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
+            if isinstance(data["rating"], int):
+                if data["rating"] >= MIN_RATE and data["rating"] <= MAX_RATE:
+                    self.rating = data["rating"]
+                else:
+                    raise DataValidationError(
+                    "Invalid range for [rating]: "
+                    + str(data["rating"])
+                )
+            else: 
+                raise DataValidationError(
+                    "Invalid type for [rating]: "
+                    + str(type(data["rating"]))
+                )
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
             raise DataValidationError("Invalid product: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data - "
+                "Invalid Product: body of request contained bad or no data - "
                 "Error message: " + str(error)
             )
         return self

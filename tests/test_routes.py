@@ -98,6 +98,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product["description"], test_product.description)
         self.assertEqual(new_product["price"], test_product.price)
         self.assertEqual(new_product["available"], test_product.available)
+        self.assertEqual(new_product["rating"], test_product.rating)
 
         # Check that the location header was correct
         response = self.client.get(location)
@@ -108,6 +109,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product['description'], test_product.description)
         self.assertEqual(new_product['price'], test_product.price)
         self.assertEqual(new_product['available'], test_product.available)
+        self.assertEqual(new_product["rating"], test_product.rating)
 
     ######################################################################
     #  T E S T   S A D   P A T H S
@@ -132,11 +134,11 @@ class TestYourResourceServer(TestCase):
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # def test_create_product_bad_price(self):
-    #     """It should not Create a Product with bad price data"""
-    #     test_product = ProductFactory()
-    #     logging.debug(test_product)
-    #     # change price to a price which is not in the specified range
-    #     test_product.price = -5.0
-    #     response = self.client.post(BASE_URL, json=test_product.serialize())
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_create_product_bad_price(self):
+        """It should not Create a Product with bad price data"""
+        test_product = ProductFactory()
+        logging.debug(test_product)
+        # change price to a price which is not in the specified range
+        test_product.price = -5.0
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
