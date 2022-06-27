@@ -53,7 +53,7 @@ class TestProduct(unittest.TestCase):
 
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
-        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating = 3)
+        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating=3)
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -129,6 +129,7 @@ class TestProduct(unittest.TestCase):
         data["price"] = "string!"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_Price_2(self):
         """It should not deserialize a price that exceeds the max price"""
         test_product = ProductFactory()
@@ -136,6 +137,7 @@ class TestProduct(unittest.TestCase):
         data["price"] = 1000.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_Price_3(self):
         """It should not deserialize a price that is smaller than the min price"""
         test_product = ProductFactory()
@@ -143,6 +145,7 @@ class TestProduct(unittest.TestCase):
         data["price"] = -10.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_Rating(self):
         """It should not deserialize a rating that is smaller than zero"""
         test_product = ProductFactory()
@@ -150,6 +153,7 @@ class TestProduct(unittest.TestCase):
         data["rating"] = -10.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_Rating_2(self):
         """It should not deserialize a rating that is greater than five"""
         test_product = ProductFactory()
@@ -157,18 +161,21 @@ class TestProduct(unittest.TestCase):
         data["rating"] = 10.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_Rating_3(self):
         """It should not deserialize a bad rating attribute"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["rating"] = "string!"
         product = Product()
-        self.assertRaises(DataValidationError, product.deserialize, data)   
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
     # def test_invalid_name(self):
     #     """It should not make a product with invalid name"""
     #     data = {"id": 1, "name": "shoes", "description": "Relaxed Fit", "category":"men's clothing", "available":True}
     #     product = Product()
     #     self.assertRaises(DataValidationError, , data)
+
     # def test_find_or_404_not_found(self):
     #     """It should return 404 not found"""
     #     self.assertRaises(NotFound, Product.find_or_404, 0)

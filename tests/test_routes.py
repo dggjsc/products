@@ -159,13 +159,14 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_product_bad_price_3(self):
-            """It should not Create a Product with bad price data"""
-            test_product = ProductFactory()
-            logging.debug(test_product)
-            # change price to a price which is not in the specified range
-            test_product.price = "string"
-            response = self.client.post(BASE_URL, json=test_product.serialize())
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        """It should not Create a Product with bad price data"""
+        test_product = ProductFactory()
+        logging.debug(test_product)
+        # change price to a price which is not in the specified range
+        test_product.price = "string"
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_product_bad_rating_1(self):
         """It should not Create a Product with the rating data smaller than minimum price"""
         test_product = ProductFactory()
@@ -174,15 +175,17 @@ class TestYourResourceServer(TestCase):
         test_product.rating = -5.0
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_product_bad_rating_2(self):
-            """It should not Create a Product with the rating greater than maximum"""
-            test_product = ProductFactory()
-            logging.debug(test_product)
-            # change price to a price which is not in the specified range
-            test_product.rating = 6
-            response = self.client.post(BASE_URL, json=test_product.serialize())
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    def test_create_product_bad_price_3(self):
+        """It should not Create a Product with the rating greater than maximum"""
+        test_product = ProductFactory()
+        logging.debug(test_product)
+        # change price to a price which is not in the specified range
+        test_product.rating = 6
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_product_bad_rating_3(self):
         """It should not Create a Product with bad rating data"""
         test_product = ProductFactory()
         logging.debug(test_product)
