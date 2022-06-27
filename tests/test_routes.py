@@ -90,7 +90,6 @@ class TestYourResourceServer(TestCase):
         data = response.get_json()
         self.assertEqual(len(data), 5)
 
-
     def test_create_product(self):
         """It should Create a new Product"""
         test_product = ProductFactory()
