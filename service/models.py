@@ -41,7 +41,6 @@ class Product(db.Model):
     Class that represents a product
     """
     # Table Schema
-    logger.info("Creating a new Table")
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(db.String(63), nullable=False, server_default=("unavailable"))
