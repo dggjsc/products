@@ -82,6 +82,14 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["version"], "1.0")
         self.assertEqual(data["paths"], "http://localhost/")
 
+    def test_get_product_list(self):
+        """It should Get a list of Products"""
+        self._create_products(5)
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), 5)
+
     def test_create_product(self):
         """It should Create a new Product"""
         test_product = ProductFactory()
