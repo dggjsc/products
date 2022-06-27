@@ -108,7 +108,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product['description'], test_product.description)
         self.assertEqual(new_product['price'], test_product.price)
         self.assertEqual(new_product['available'], test_product.available)
-    
+
     def test_update_product(self):
         """It should Update an existing Product"""
         # create a product to update
@@ -171,4 +171,3 @@ class TestYourResourceServer(TestCase):
         wrong_id = new_product['id'] + 1
         response = self.client.put(f"{BASE_URL}/{wrong_id}", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
