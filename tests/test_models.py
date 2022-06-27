@@ -63,7 +63,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
-    
+
     def test_delete_a_product(self):
         """It should Delete a Product"""
         product = ProductFactory()
