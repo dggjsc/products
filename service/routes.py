@@ -73,12 +73,11 @@ def create_products():
 ######################################################################
 # DELETE A PET
 ######################################################################
+
+
 @app.route("/products/<int:product_id>", methods=["DELETE"])
 def delete_products(product_id):
-    """
-    Delete a Product
-    This endpoint will delete a Product based the id specified in the path
-    """
+    """Delete a Product """
     app.logger.info("Request to delete product with id: %s", product_id)
     product = Product.find(product_id)
     if product:
@@ -90,6 +89,8 @@ def delete_products(product_id):
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
+
 def init_db():
     """ Initializes the SQLAlchemy app """
     global app
