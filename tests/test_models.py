@@ -2,6 +2,7 @@
 Test cases for Product Model
 
 """
+# from itertools import product
 import os
 import logging
 import unittest
@@ -13,6 +14,7 @@ from tests.factories import ProductFactory
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
 )
+
 ######################################################################
 #  Product   M O D E L   T E S T   C A S E S
 ######################################################################
@@ -48,6 +50,17 @@ class TestProduct(unittest.TestCase):
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
+
+    def test_create_a_product(self):
+        """It should Create a product and assert that it exists"""
+        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0)
+        self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
+        self.assertTrue(product is not None)
+        self.assertEqual(product.id, None)
+        self.assertEqual(product.name, "shirt")
+        self.assertEqual(product.category, "men's clothing")
+        self.assertEqual(product.available, True)
+        self.assertEqual(product.description, "relaxed")
 
     def test_XXXX(self):
         """ It should always be true """
