@@ -20,7 +20,7 @@ lint: ## Run the linter
 
 test: ## Run the unit tests
 	$(info Running tests...)
-	nosetests --with-spec --spec-color
+	nosetests --with-spec --spec-color --exe
 
 run: ## Run the service
 	$(info Starting service...)
