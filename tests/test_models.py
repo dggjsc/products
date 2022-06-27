@@ -53,7 +53,7 @@ class TestProduct(unittest.TestCase):
 
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
-        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', product_price="20.0", rating = 3)
+        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating = 3)
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -61,7 +61,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.category, "men's clothing")
         self.assertEqual(product.available, True)
         self.assertEqual(product.description, "relaxed")
-        self.assertEqual(product.product_price, "20.0")
+        self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
 
     def test_XXXX(self):
@@ -81,8 +81,8 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["category"], product.category)
         self.assertIn("description", data)
         self.assertEqual(data["description"], product.description)
-        self.assertIn("product_price", data)
-        self.assertEqual(data["product_price"], product.product_price)
+        self.assertIn("price", data)
+        self.assertEqual(data["price"], product.price)
         self.assertIn("available", data)
         self.assertEqual(data["available"], product.available)
         self.assertIn("rating", data)
@@ -98,7 +98,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.name, data["name"])
         self.assertEqual(product.description, data["description"])
         self.assertEqual(product.category, data["category"])
-        self.assertEqual(product.product_price, data["product_price"])
+        self.assertEqual(product.price, data["price"])
         self.assertEqual(product.available, data["available"])
         self.assertEqual(product.rating, data["rating"])
 
@@ -126,23 +126,44 @@ class TestProduct(unittest.TestCase):
         """It should not deserialize a bad price attribute"""
         test_product = ProductFactory()
         data = test_product.serialize()
-        data["product_price"] = "string!"
+        data["price"] = "string!"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     def test_deserialize_bad_Price_2(self):
         """It should not deserialize a price that exceeds the max price"""
         test_product = ProductFactory()
         data = test_product.serialize()
-        data["product_price"] = 1000.0
+        data["price"] = 1000.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     def test_deserialize_bad_Price_3(self):
         """It should not deserialize a price that is smaller than the min price"""
         test_product = ProductFactory()
         data = test_product.serialize()
-        data["product_price"] = -10.0
+        data["price"] = -10.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_Rating(self):
+        """It should not deserialize a rating that is smaller than zero"""
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["rating"] = -10.0
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_Rating_2(self):
+        """It should not deserialize a rating that is greater than five"""
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["rating"] = 10.0
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+    def test_deserialize_bad_Rating_3(self):
+        """It should not deserialize a bad rating attribute"""
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["rating"] = "string!"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)   
     # def test_invalid_name(self):
     #     """It should not make a product with invalid name"""
     #     data = {"id": 1, "name": "shoes", "description": "Relaxed Fit", "category":"men's clothing", "available":True}

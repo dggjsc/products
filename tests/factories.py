@@ -18,7 +18,7 @@ class ProductFactory(factory.Factory):
     name = FuzzyChoice(choices=["shirt", "sweater", "pants", "lounge_wear"])
     description = FuzzyChoice(choices=['unavailable', 'Relaxed Fit', 'Slim Fit'])
     category = FuzzyChoice(choices=["men's clothing", "women's clothing"])
-    product_price = round(random.uniform(MIN_PRICE, MAX_PRICE), 2)
+    price = round(random.uniform(MIN_PRICE, MAX_PRICE), 2)
     available = FuzzyChoice(choices=[True, False])
     rating = random.randint(0, 5)
     
