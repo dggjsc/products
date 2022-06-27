@@ -30,9 +30,23 @@ def index():
         status.HTTP_200_OK,
     )
 
+######################################################################
+# LIST ALL PRODUCTS
+######################################################################
+@app.route("/products", methods=["GET"])
+def list_products():
+    """Returns all of the Pets"""
+    app.logger.info("Request for pet list")
+    products = []
+    products = Product.all()
+    results = [product.serialize() for product in products]
+    app.logger.info("Returning %d pets", len(results))
+    return jsonify(results), status.HTTP_200_OK
+
+
 
 ######################################################################
-# RETRIEVE A PET
+# RETRIEVE A PRODUCT
 ######################################################################
 @app.route("/product/<int:product_id>", methods=["GET"])
 def get_products(product_id):
