@@ -233,4 +233,3 @@ class TestYourResourceServer(TestCase):
         test_product.price = "string"
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
