@@ -11,7 +11,8 @@ from unittest import TestCase
 # from unittest.mock import MagicMock, patch
 from service import app
 from service.models import Product
-from service.models import db, init_db
+from service.models import db
+from service.routes import init_db
 from service.utils import status
 from tests.factories import ProductFactory  # HTTP Status Codes
 
@@ -37,7 +38,7 @@ class TestYourResourceServer(TestCase):
         # Set up the test database
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
-        init_db(app)
+        init_db()
 
     @classmethod
     def tearDownClass(cls):
@@ -101,7 +102,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product["name"], test_product.name)
         self.assertEqual(new_product["category"], test_product.category)
         self.assertEqual(new_product["description"], test_product.description)
-        self.assertEqual(new_product["price"], test_product.price)
+        self.assertEqual(new_product["product_price"], test_product.product_price)
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["rating"], test_product.rating)
 
@@ -112,7 +113,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product['name'], test_product.name)
         self.assertEqual(new_product['category'], test_product.category)
         self.assertEqual(new_product['description'], test_product.description)
-        self.assertEqual(new_product['price'], test_product.price)
+        self.assertEqual(new_product['product_price'], test_product.product_price)
         self.assertEqual(new_product['available'], test_product.available)
         self.assertEqual(new_product["rating"], test_product.rating)
 

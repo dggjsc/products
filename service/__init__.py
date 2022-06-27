@@ -7,7 +7,7 @@ and SQL database
 import sys
 # import logging
 from flask import Flask
-from .utils import log_handlers
+from service.utils import log_handlers 
 
 # Create Flask application
 app = Flask(__name__)
@@ -17,7 +17,7 @@ app.config.from_object("config")
 # pylint: disable=wrong-import-position, wrong-import-order
 from service import routes         # noqa: E402, E261
 # pylint: disable=wrong-import-position
-from .utils import error_handlers  # noqa: F401 E402
+from service.utils import error_handlers, cli_commands  # noqa: F401 E402
 
 # Set up logging for production
 log_handlers.init_logging(app, "gunicorn.error")
@@ -28,6 +28,7 @@ app.logger.info(70 * "*")
 
 try:
     routes.init_db()  # make our SQLAlchemy tables
+    # cli_commands.create_db
 except Exception as error:
     app.logger.critical("%s: Cannot continue", error)
     # gunicorn requires exit code 4 to stop spawning workers when they die

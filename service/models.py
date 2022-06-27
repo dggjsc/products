@@ -18,9 +18,9 @@ logger = logging.getLogger("flask.app")
 db = SQLAlchemy()
 
 
-def init_db(app):
-    """Initialize the SQLAlchemy app"""
-    Product.init_db(app)
+# def init_db(app):
+#     """Initialize the SQLAlchemy app"""
+#     Product.init_db(app)
 # Defining acceptable input for names and descriptions
 
 
@@ -45,7 +45,7 @@ class Product(db.Model):
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(db.String(63), nullable=False, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
-    price = db.Column(db.Float(), nullable=False)
+    product_price = db.Column(db.String(), nullable=False, server_default=("unavailable"))
     available = db.Column(db.Boolean(), nullable=False, default=False)
     rating = db.Column(db.Integer, nullable=False)
 
@@ -82,7 +82,7 @@ class Product(db.Model):
                 "name": self.name,
                 "description": self.description,
                 "category": self.category,
-                "price": self.price,
+                "product_price": self.product_price,
                 "available": self.available,
                 "rating": self.rating
                 }
@@ -98,19 +98,27 @@ class Product(db.Model):
             self.name = data["name"]
             self.description = data["description"]
             self.category = data["category"]
-            if isinstance(data["price"], float):
-                if data["price"] >= MIN_PRICE and data["price"] <= MAX_PRICE:
-                    self.price = data["price"]
-                else:
-                    raise DataValidationError(
-                        "Invalid range for [price]: "
-                        + str(data["price"])
-                    )
-            else:
+            # self.product_price = data["product_price"]
+            try:
+                float(data["product_price"])
+            except ValueError as error:
                 raise DataValidationError(
                     "Invalid type for float [price]: "
-                    + str(type(data["price"]))
+                    + str(data["product_price"])
                 )
+            # if isinstance(data["product_price"], float):
+            if float(data["product_price"]) >= MIN_PRICE and float(data["product_price"]) <= MAX_PRICE:
+                self.product_price = data["product_price"]
+            else:
+                raise DataValidationError(
+                    "Invalid range for [price]: "
+                    + str(data["product_price"])
+                )
+            # else:
+            #     raise DataValidationError(
+            #         "Invalid type for float [price]: "
+            #         + str(type(data["product_price"]))
+            #     )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
