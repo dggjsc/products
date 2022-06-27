@@ -83,7 +83,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["paths"], "http://localhost/")
 
     def test_get_product_list(self):
-        '''It should Get a list of Products'''
+        """It should Get a list of Products"""
         self._create_products(5)
         response = self.client.get(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

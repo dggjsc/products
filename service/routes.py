@@ -30,6 +30,7 @@ def index():
         status.HTTP_200_OK,
     )
 
+
 ######################################################################
 # LIST ALL PRODUCTS
 ######################################################################
@@ -42,7 +43,6 @@ def list_products():
     results = [product.serialize() for product in products]
     app.logger.info("Returning %d pets", len(results))
     return jsonify(results), status.HTTP_200_OK
-
 
 
 ######################################################################

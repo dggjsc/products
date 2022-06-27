@@ -18,9 +18,9 @@ logger = logging.getLogger("flask.app")
 db = SQLAlchemy()
 
 
-def init_db(app):
-     """Initialize the SQLAlchemy app"""
-     Product.init_db(app)
+# def init_db(app):
+#     """Initialize the SQLAlchemy app"""
+#     Product.init_db(app)
 # Defining acceptable input for names and descriptions
 
 
