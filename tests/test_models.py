@@ -133,14 +133,14 @@ class TestProduct(unittest.TestCase):
         """It should not deserialize a price that exceeds the max price"""
         test_product = ProductFactory()
         data = test_product.serialize()
-        data["product_price"] = "1000.0"
+        data["product_price"] = 1000.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     def test_deserialize_bad_Price_3(self):
         """It should not deserialize a price that is smaller than the min price"""
         test_product = ProductFactory()
         data = test_product.serialize()
-        data["product_price"] = "-10.0"
+        data["product_price"] = -10.0
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
     # def test_invalid_name(self):

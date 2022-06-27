@@ -45,7 +45,7 @@ class Product(db.Model):
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(db.String(63), nullable=False, server_default=("unavailable"))
     category = db.Column(db.String(63), nullable=False)
-    product_price = db.Column(db.String(), nullable=False, server_default=("unavailable"))
+    product_price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
     rating = db.Column(db.Integer, nullable=False)
 
@@ -99,26 +99,26 @@ class Product(db.Model):
             self.description = data["description"]
             self.category = data["category"]
             # self.product_price = data["product_price"]
-            try:
-                float(data["product_price"])
-            except ValueError as error:
-                raise DataValidationError(
-                    "Invalid type for float [price]: "
-                    + str(data["product_price"])
-                )
-            # if isinstance(data["product_price"], float):
-            if float(data["product_price"]) >= MIN_PRICE and float(data["product_price"]) <= MAX_PRICE:
-                self.product_price = data["product_price"]
-            else:
-                raise DataValidationError(
-                    "Invalid range for [price]: "
-                    + str(data["product_price"])
-                )
-            # else:
+            # try:
+            #     float(data["product_price"])
+            # except ValueError as error:
             #     raise DataValidationError(
             #         "Invalid type for float [price]: "
-            #         + str(type(data["product_price"]))
+            #         + str(data["product_price"])
             #     )
+            if isinstance(data["product_price"], float):
+                if data["product_price"] >= MIN_PRICE and data["product_price"] <= MAX_PRICE:
+                    self.product_price = data["product_price"]
+                else:
+                    raise DataValidationError(
+                        "Invalid range for [price]: "
+                        + str(data["product_price"])
+                    )
+            else:
+                raise DataValidationError(
+                    "Invalid type for float [price]: "
+                    + str(type(data["product_price"]))
+                )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
