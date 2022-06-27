@@ -34,7 +34,7 @@ def index():
 ######################################################################
 # RETRIEVE A PET
 ######################################################################
-@app.route("/product/<int:product_id>", methods=["GET"])
+@app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
     """
     Retrieve a single Product
