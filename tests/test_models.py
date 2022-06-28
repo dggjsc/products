@@ -63,10 +63,19 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
-
-    def test_XXXX(self):
-        """ It should always be true """
-        self.assertTrue(True)
+    
+    def test_add_a_product(self):
+        """It should Create a product and add it to the database"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product = Product(name="shirt", category="women's clothing", available=True, price=15.0, description="Relaxed Fit", rating=1)
+        self.assertTrue(product is not None)
+        self.assertEqual(product.id, None)
+        product.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(product.id)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
 
     def test_serialize_a_product(self):
         """It should serialize a Product"""
