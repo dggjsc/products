@@ -35,9 +35,23 @@ def index():
 
 
 ######################################################################
-# RETRIEVE A PET
+# LIST ALL PRODUCTS
 ######################################################################
-@app.route("/product/<int:product_id>", methods=["GET"])
+@app.route("/products", methods=["GET"])
+def list_products():
+    """Returns all of the Products"""
+    app.logger.info("Request for Product list")
+    products = []
+    products = Product.all()
+    results = [product.serialize() for product in products]
+    app.logger.info("Returning %d products", len(results))
+    return jsonify(results), status.HTTP_200_OK
+
+
+######################################################################
+# RETRIEVE A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
     """
     Retrieve a single Product
@@ -77,9 +91,8 @@ def create_products():
 
 
 ######################################################################
-# DELETE A PET
+# DELETE A PRODUCT
 ######################################################################
-
 
 @app.route("/products/<int:product_id>", methods=["DELETE"])
 def delete_products(product_id):
@@ -91,6 +104,33 @@ def delete_products(product_id):
 
     app.logger.info("Product with ID [%s] delete complete.", product_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# UPDATE AN EXISTING PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_products(product_id):
+    """
+    Update a Product
+
+    This endpoint will update a Product based the body that is posted
+    """
+    app.logger.info("Request to update product with id: %s", product_id)
+    check_content_type("application/json")
+
+    product = Product.find(product_id)
+    if not product:
+        abort(
+            status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found."
+        )
+
+    product.deserialize(request.get_json())
+    product.id = product_id
+    product.update()
+
+    app.logger.info("Product with ID [%s] updated.", product.id)
+    return jsonify(product.serialize()), status.HTTP_200_OK
 
 
 ######################################################################

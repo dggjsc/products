@@ -26,12 +26,12 @@ db = SQLAlchemy()
 # Defining acceptable input for names and descriptions
 
 
-def acceptable_names():
-    return ["shirt", "sweater", "pants", "lounge_wear"]
+# def acceptable_names():
+#     return ["shirt", "sweater", "pants", "lounge_wear"]
 
 
-def acceptable_description():
-    return ["unavailable", "Relaxed Fit", "Slim Fit"]
+# def acceptable_description():
+#     return ["unavailable", "Relaxed Fit", "Slim Fit"]
 
 
 class DataValidationError(Exception):
@@ -68,7 +68,7 @@ class Product(db.Model):
 
     def update(self):
         """
-        Updates a Pet to the database
+        Updates a Product to the database
         """
         logger.info("Saving %s", self.name)
         if not self.id:
@@ -169,31 +169,35 @@ class Product(db.Model):
         return cls.query.all()
 
     @classmethod
-    def find(cls, by_id):
-        """Finds a product by it's ID"""
-        logger.info("Processing lookup for id %s ...", by_id)
-        return cls.query.get_or_404(by_id)
+    def find(cls, product_id: int):
+        """Find a Product by it's id
+
+        :param product_id: the id of the Product to find
+        :type product_id: int
+
+        :return: an instance with the product_id, or 404_NOT_FOUND if not found
+        :rtype: Product
+
+        """
+        logger.info("Processing lookup for id %s ...", product_id)
+        return cls.query.get(product_id)
 
     @classmethod
     def find_or_404(cls, product_id: int):
-        """Find a Pet by it's id
-
-        :param pet_id: the id of the Pet to find
-        :type pet_id: int
-
-        :return: an instance with the pet_id, or 404_NOT_FOUND if not found
-        :rtype: Pet
-
+        """Find a Product by it's id
+        :param product_id: the id of the Pet to find
+        :type product_id: int
+        :return: an instance with the product_id, or 404_NOT_FOUND if not found
+        :rtype: Product
         """
         logger.info("Processing lookup or 404 for id %s ...", product_id)
         return cls.query.get_or_404(product_id)
 
     @classmethod
-    def find_by_name(cls, name):
+    def find_by_name(cls, name: str) -> list:
         """Returns all products with the given name
-
         Args:
-            name (string): the name of the products you want to match
+        name (string): the name of the products you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
