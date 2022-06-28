@@ -63,7 +63,7 @@ class Product(db.Model):
 
     def update(self):
         """
-        Updates a Pet to the database
+        Updates a Product to the database
         """
         logger.info("Saving %s", self.name)
         if not self.id:
@@ -174,13 +174,13 @@ class Product(db.Model):
 
     @classmethod
     def find_or_404(cls, product_id: int):
-        """Find a Pet by it's id
+        """Find a Product by it's id
 
-        :param pet_id: the id of the Pet to find
-        :type pet_id: int
+        :param product_id: the id of the Product to find
+        :type product_id: int
 
-        :return: an instance with the pet_id, or 404_NOT_FOUND if not found
-        :rtype: Pet
+        :return: an instance with the product_id, or 404_NOT_FOUND if not found
+        :rtype: Product
 
         """
         logger.info("Processing lookup or 404 for id %s ...", product_id)
