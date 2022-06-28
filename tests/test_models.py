@@ -7,6 +7,7 @@ Test cases for Product Model
 import os
 import logging
 import unittest
+
 # from sqlalchemy import true
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
@@ -72,6 +73,15 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
 
+    def test_delete_a_product(self):
+        """It should Delete a Product"""
+        product = ProductFactory()
+        product.create()
+        self.assertEqual(len(Product.all()), 1)
+        # delete the product and make sure it isn't in the database
+        product.delete()
+        self.assertEqual(len(Product.all()), 0)
+
     def test_read_a_product(self):
         """It should Read a Product"""
         product = ProductFactory()
@@ -119,10 +129,6 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.price, products[1].price)
         self.assertEqual(product.available, products[1].available)
         self.assertEqual(product.rating, products[1].rating)
-
-    def test_XXXX(self):
-        """ It should always be true """
-        self.assertTrue(True)
 
     def test_add_a_product(self):
         """It should Create a product and add it to the database"""
