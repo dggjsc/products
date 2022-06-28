@@ -3,9 +3,11 @@ Test cases for Product Model
 
 """
 # from itertools import product
+# from math import prod
 import os
 import logging
 import unittest
+# from sqlalchemy import true
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
@@ -21,11 +23,11 @@ DATABASE_URI = os.getenv(
 
 
 class TestProduct(unittest.TestCase):
-    """ Test Cases for Product Model """
+    """Test Cases for Product Model"""
 
     @classmethod
     def setUpClass(cls):
-        """ This runs once before the entire test suite """
+        """This runs once before the entire test suite"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -35,16 +37,16 @@ class TestProduct(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.close()
 
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         db.session.query(Product).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         db.session.remove()
 
     ######################################################################
@@ -52,7 +54,14 @@ class TestProduct(unittest.TestCase):
     ######################################################################
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
-        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating=3)
+        product = Product(
+            name="shirt",
+            category="men's clothing",
+            available=True,
+            description="relaxed",
+            price=20.0,
+            rating=3,
+        )
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -114,6 +123,54 @@ class TestProduct(unittest.TestCase):
     def test_XXXX(self):
         """ It should always be true """
         self.assertTrue(True)
+
+    def test_add_a_product(self):
+        """It should Create a product and add it to the database"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        product = Product(
+            name="shirt",
+            category="women's clothing",
+            available=True,
+            price=15.0,
+            description="Relaxed Fit",
+            rating=1,
+        )
+        self.assertTrue(product is not None)
+        self.assertEqual(product.id, None)
+        product.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(product.id)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+
+    def test_update_a_product(self):
+        """It should Update a Product"""
+        product = ProductFactory()
+        logging.debug(product)
+        product.id = None
+        product.create()
+        logging.debug(product)
+        self.assertIsNotNone(product.id)
+        # Change it an save it
+        product.category = "k9"
+        original_id = product.id
+        product.update()
+        self.assertEqual(product.id, original_id)
+        self.assertEqual(product.category, "k9")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+        self.assertEqual(products[0].id, original_id)
+        self.assertEqual(products[0].category, "k9")
+
+    def test_update_no_id(self):
+        """It should not Update a Product with no id"""
+        product = ProductFactory()
+        logging.debug(product)
+        product.id = None
+        self.assertRaises(DataValidationError, product.update)
 
     def test_serialize_a_product(self):
         """It should serialize a Product"""
@@ -222,7 +279,6 @@ class TestProduct(unittest.TestCase):
         products = ProductFactory.create_batch(3)
         for product in products:
             product.create()
-
         product = Product.find_or_404(products[1].id)
         self.assertIsNot(product, None)
         self.assertEqual(product.id, products[1].id)
