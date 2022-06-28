@@ -63,7 +63,7 @@ class Product(db.Model):
 
     def update(self):
         """
-        Updates a Pet to the database
+        Updates a Product to the database
         """
         logger.info("Saving %s", self.name)
         if not self.id:
