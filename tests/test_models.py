@@ -62,7 +62,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
-    
+
     def test_read_a_product(self):
         """It should Read a Product"""
         product = ProductFactory()
@@ -79,7 +79,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found_product.price, product.price)
         self.assertEqual(found_product.available, product.available)
         self.assertEqual(found_product.rating, product.rating)
-    
+
     def test_list_all_products(self):
         """It should List all Products in the database"""
         products = Product.all()
@@ -134,7 +134,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["available"], product.available)
         self.assertIn("rating", data)
         self.assertEqual(data["rating"], product.rating)
-    
+
     def test_deserialize_a_product(self):
         """It should de-serialize a Product"""
         data = ProductFactory().serialize()
