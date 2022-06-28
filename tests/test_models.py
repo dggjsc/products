@@ -50,7 +50,6 @@ class TestProduct(unittest.TestCase):
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
-
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
         product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating=3)
@@ -135,8 +134,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["available"], product.available)
         self.assertIn("rating", data)
         self.assertEqual(data["rating"], product.rating)
-        
-
+    
     def test_deserialize_a_product(self):
         """It should de-serialize a Product"""
         data = ProductFactory().serialize()
