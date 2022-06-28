@@ -91,6 +91,23 @@ def create_products():
 
 
 ######################################################################
+# DELETE A PRODUCT
+######################################################################
+
+
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_products(product_id):
+    """Delete a Product"""
+    app.logger.info("Request to delete product with id: %s", product_id)
+    product = Product.find(product_id)
+    if product:
+        product.delete()
+
+    app.logger.info("Product with ID [%s] delete complete.", product_id)
+    return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
 # UPDATE AN EXISTING PRODUCT
 ######################################################################
 @app.route("/products/<int:product_id>", methods=["PUT"])
@@ -120,6 +137,8 @@ def update_products(product_id):
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
+
 def init_db():
     """Initializes the SQLAlchemy app"""
     global app

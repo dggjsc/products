@@ -77,7 +77,6 @@ class TestYourResourceServer(TestCase):
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
-
     def test_index(self):
         """It should call the Home Page"""
         resp = self.client.get("/")
@@ -135,6 +134,23 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product["price"], test_product.price)
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["rating"], test_product.rating)
+
+    def test_delete_product(self):
+        """It should Delete a Product"""
+        test_product = self._create_products(1)[0]
+        print(test_product)
+        response = self.client.delete(f"{BASE_URL}/{test_product.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0)
+
+    # #####################################################################
+    def test_get_product(self):
+        """It should return a single product"""
+        test_product = self._create_products(1)[0]
+        response = self.client.get(f"{BASE_URL}/{test_product.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["name"], test_product.name)
 
     def test_update_product(self):
         """It should Update an existing Product"""
@@ -243,3 +259,9 @@ class TestYourResourceServer(TestCase):
         test_product.price = "string"
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_product_no_product(self):
+        """The Product with this index doesn't exist"""
+        invalid_index = -1
+        response = self.client.get(f"{BASE_URL}/{invalid_index}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
