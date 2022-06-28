@@ -7,7 +7,6 @@ Test cases for Product Model
 import os
 import logging
 import unittest
-
 # from sqlalchemy import true
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
@@ -53,7 +52,6 @@ class TestProduct(unittest.TestCase):
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
-
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
         product = Product(
@@ -73,6 +71,58 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
+
+    def test_read_a_product(self):
+        """It should Read a Product"""
+        product = ProductFactory()
+        logging.debug(product)
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        # Fetch it back
+        found_product = Product.find(product.id)
+        self.assertEqual(found_product.id, product.id)
+        self.assertEqual(found_product.name, product.name)
+        self.assertEqual(found_product.category, product.category)
+        self.assertEqual(found_product.description, product.description)
+        self.assertEqual(found_product.price, product.price)
+        self.assertEqual(found_product.available, product.available)
+        self.assertEqual(found_product.rating, product.rating)
+
+    def test_list_all_products(self):
+        """It should List all Products in the database"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        # Create 5 Products
+        for i in range(5):
+            product = ProductFactory()
+            product.create()
+        # See if we get back 5 products
+        products = Product.all()
+        self.assertEqual(len(products), 5)
+
+    def test_find_product(self):
+        """It should Find a Product by ID"""
+        products = ProductFactory.create_batch(5)
+        for product in products:
+            product.create()
+        logging.debug(products)
+        # make sure they got saved
+        self.assertEqual(len(Product.all()), 5)
+        # find the 2nd pet in the list
+        product = Product.find(products[1].id)
+        self.assertIsNot(product, None)
+        self.assertEqual(product.id, products[1].id)
+        self.assertEqual(product.name, products[1].name)
+        self.assertEqual(product.category, products[1].category)
+        self.assertEqual(product.description, products[1].description)
+        self.assertEqual(product.price, products[1].price)
+        self.assertEqual(product.available, products[1].available)
+        self.assertEqual(product.rating, products[1].rating)
+
+    def test_XXXX(self):
+        """ It should always be true """
+        self.assertTrue(True)
 
     def test_add_a_product(self):
         """It should Create a product and add it to the database"""
@@ -121,18 +171,6 @@ class TestProduct(unittest.TestCase):
         logging.debug(product)
         product.id = None
         self.assertRaises(DataValidationError, product.update)
-
-    def test_list_all_product(self):
-        """It should List all Products in the database"""
-        products = Product.all()
-        self.assertEqual(products, [])
-        # Create 5 Ps
-        for i in range(5):
-            product = ProductFactory()
-            product.create()
-        # See if we get back 5 pets
-        products = Product.all()
-        self.assertEqual(len(products), 5)
 
     def test_serialize_a_product(self):
         """It should serialize a Product"""
@@ -241,20 +279,31 @@ class TestProduct(unittest.TestCase):
         products = ProductFactory.create_batch(3)
         for product in products:
             product.create()
-
-        product = Product.find(products[1].id)
+        product = Product.find_or_404(products[1].id)
         self.assertIsNot(product, None)
         self.assertEqual(product.id, products[1].id)
         self.assertEqual(product.name, products[1].name)
-        self.assertEqual(product.available, products[1].available)
-        self.assertEqual(product.price, products[1].price)
-        self.assertEqual(product.description, products[1].description)
-        self.assertEqual(product.rating, products[1].rating)
         self.assertEqual(product.category, products[1].category)
+        self.assertEqual(product.description, products[1].description)
+        self.assertEqual(product.price, products[1].price)
+        self.assertEqual(product.available, products[1].available)
+        self.assertEqual(product.rating, products[1].rating)
 
-    def test_find_or_404_not_found(self):
-        """It should return 404 not found"""
-        self.assertRaises(NotFound, Product.find, 0)
+    def test_find_by_name(self):
+        """It should Find a Product by Name"""
+        products = ProductFactory.create_batch(5)
+        for product in products:
+            product.create()
+        name = products[0].name
+        found = Product.find_by_name(name)
+        self.assertGreaterEqual(found.count(), 1)
+        test_product = found[0]
+        self.assertEqual(test_product.name, products[0].name)
+        self.assertEqual(test_product.category, products[0].category)
+        self.assertEqual(test_product.description, products[0].description)
+        self.assertEqual(test_product.price, products[0].price)
+        self.assertEqual(test_product.available, products[0].available)
+        self.assertEqual(test_product.rating, products[0].rating)
 
     # def test_invalid_name(self):
     #     """It should not make a product with invalid name"""
@@ -262,6 +311,6 @@ class TestProduct(unittest.TestCase):
     #     product = Product()
     #     self.assertRaises(DataValidationError, , data)
 
-    # def test_find_or_404_not_found(self):
-    #     """It should return 404 not found"""
-    #     self.assertRaises(NotFound, Product.find_or_404, 0)
+    def test_find_or_404_not_found(self):
+        """It should return 404 not found"""
+        self.assertRaises(NotFound, Product.find_or_404, 0)
