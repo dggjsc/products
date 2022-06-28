@@ -311,12 +311,6 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(test_product.available, products[0].available)
         self.assertEqual(test_product.rating, products[0].rating)
 
-    # def test_invalid_name(self):
-    #     """It should not make a product with invalid name"""
-    #     data = {"id": 1, "name": "shoes", "description": "Relaxed Fit", "category":"men's clothing", "available":True}
-    #     product = Product()
-    #     self.assertRaises(DataValidationError, , data)
-
     def test_find_or_404_not_found(self):
         """It should return 404 not found"""
         self.assertRaises(NotFound, Product.find_or_404, 0)
