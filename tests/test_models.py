@@ -3,10 +3,13 @@ Test cases for Product Model
 
 """
 # from itertools import product
+from math import prod
 import os
 import logging
 import unittest
-# from werkzeug.exceptions import NotFound
+
+from sqlalchemy import true
+from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
 from tests.factories import ProductFactory
@@ -76,6 +79,46 @@ class TestProduct(unittest.TestCase):
         self.assertIsNotNone(product.id)
         products = Product.all()
         self.assertEqual(len(products), 1)
+    
+    def test_update_a_product(self):
+        """It should Update a Product"""
+        product = ProductFactory()
+        logging.debug(product)
+        product.id = None
+        product.create()
+        logging.debug(product)
+        self.assertIsNotNone(product.id)
+        # Change it an save it
+        product.category = "k9"
+        original_id = product.id
+        product.update()
+        self.assertEqual(product.id, original_id)
+        self.assertEqual(product.category, "k9")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+        self.assertEqual(products[0].id, original_id)
+        self.assertEqual(products[0].category, "k9")
+
+    def test_update_no_id(self):
+        """It should not Update a Product with no id"""
+        product = ProductFactory()
+        logging.debug(product)
+        product.id = None
+        self.assertRaises(DataValidationError, product.update)
+
+    def test_list_all_product(self):
+        """It should List all Products in the database"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        # Create 5 Ps
+        for i in range(5):
+            product = ProductFactory()
+            product.create()
+        # See if we get back 5 pets
+        products = Product.all()
+        self.assertEqual(len(products), 5)
 
     def test_serialize_a_product(self):
         """It should serialize a Product"""
@@ -178,6 +221,28 @@ class TestProduct(unittest.TestCase):
         data["rating"] = "string!"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
+
+    def test_find_or_404_found(self):
+        """It should Find or return 404 not found"""
+        products = ProductFactory.create_batch(3)
+        for product in products:
+            product.create()
+
+        product = Product.find(products[1].id)
+        self.assertIsNot(product, None)
+        self.assertEqual(product.id, products[1].id)
+        self.assertEqual(product.name, products[1].name)
+        self.assertEqual(product.available, products[1].available)
+        self.assertEqual(product.price, products[1].price)
+        self.assertEqual(product.description, products[1].description)
+        self.assertEqual(product.rating, products[1].rating)
+        self.assertEqual(product.category, products[1].category)
+
+    def test_find_or_404_not_found(self):
+        """It should return 404 not found"""
+        self.assertRaises(NotFound, Product.find, 0)
+
+
 
     # def test_invalid_name(self):
     #     """It should not make a product with invalid name"""
