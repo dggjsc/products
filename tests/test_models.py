@@ -6,6 +6,7 @@ Test cases for Product Model
 import os
 import logging
 import unittest
+
 # from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
@@ -21,11 +22,11 @@ DATABASE_URI = os.getenv(
 
 
 class TestProduct(unittest.TestCase):
-    """ Test Cases for Product Model """
+    """Test Cases for Product Model"""
 
     @classmethod
     def setUpClass(cls):
-        """ This runs once before the entire test suite """
+        """This runs once before the entire test suite"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -35,16 +36,16 @@ class TestProduct(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.close()
 
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         db.session.query(Product).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         db.session.remove()
 
     ######################################################################
@@ -53,7 +54,14 @@ class TestProduct(unittest.TestCase):
 
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
-        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating=3)
+        product = Product(
+            name="shirt",
+            category="men's clothing",
+            available=True,
+            description="relaxed",
+            price=20.0,
+            rating=3,
+        )
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -74,7 +82,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(len(Product.all()), 0)
 
     def test_XXXX(self):
-        """ It should always be true """
+        """It should always be true"""
         self.assertTrue(True)
 
     def test_serialize_a_product(self):

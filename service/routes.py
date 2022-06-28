@@ -21,12 +21,15 @@ from . import app
 ######################################################################
 @app.route("/")
 def index():
-    """ Root URL response """
+    """Root URL response"""
     app.logger.info("Request for Root URL")
     return (
         # "Reminder: return some useful information in json format about the service here",
-        jsonify(name="Product REST API Service", paths=url_for("index", _external=True),
-                version="1.0"),
+        jsonify(
+            name="Product REST API Service",
+            paths=url_for("index", _external=True),
+            version="1.0",
+        ),
         status.HTTP_200_OK,
     )
 
@@ -44,7 +47,9 @@ def get_products(product_id):
     app.logger.info("Request for product with id: %s", product_id)
     product = Product.find(product_id)
     if not product:
-        abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found."
+        )
 
     app.logger.info("Returning product: %s", product.name)
     return jsonify(product.serialize()), status.HTTP_200_OK
@@ -70,6 +75,7 @@ def create_products():
     app.logger.info("Product with ID [%s] created.", product.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
+
 ######################################################################
 # DELETE A PET
 ######################################################################
@@ -77,7 +83,7 @@ def create_products():
 
 @app.route("/products/<int:product_id>", methods=["DELETE"])
 def delete_products(product_id):
-    """Delete a Product """
+    """Delete a Product"""
     app.logger.info("Request to delete product with id: %s", product_id)
     product = Product.find(product_id)
     if product:
@@ -86,13 +92,14 @@ def delete_products(product_id):
     app.logger.info("Product with ID [%s] delete complete.", product_id)
     return "", status.HTTP_204_NO_CONTENT
 
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
 
 def init_db():
-    """ Initializes the SQLAlchemy app """
+    """Initializes the SQLAlchemy app"""
     global app
     Product.init_db(app)
 
