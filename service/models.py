@@ -187,11 +187,11 @@ class Product(db.Model):
         return cls.query.get_or_404(product_id)
 
     @classmethod
-    def find_by_name(cls, name):
+    def find_by_name(cls, name: str) -> list:
         """Returns all products with the given name
 
         Args:
             name (string): the name of the products you want to match
         """
-        logger.info("Processing name query for %s ...", name)
+        logger.debug("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
