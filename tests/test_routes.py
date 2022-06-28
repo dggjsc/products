@@ -95,6 +95,14 @@ class TestYourResourceServer(TestCase):
         data = response.get_json()
         self.assertEqual(len(data), 5)
 
+    def test_get_product_not_found(self):
+        """It should not Get a Product thats not found"""
+        response = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        logging.debug("Response data = %s", data)
+        self.assertIn("was not found", data["message"])
+
     def test_create_product(self):
         """It should Create a new Product"""
         test_product = ProductFactory()
@@ -144,6 +152,21 @@ class TestYourResourceServer(TestCase):
         updated_product = response.get_json()
         self.assertEqual(updated_product["category"], "unknown")
 
+    def test_update_product_no_id_found(self):
+        """It should return 404 if update a product with the id not found"""
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # update a not exist id
+        new_product = response.get_json()
+        logging.debug(new_product)
+        new_product["category"] = "unknown"
+        wrong_id = new_product["id"] + 1
+        response = self.client.put(f"{BASE_URL}/{wrong_id}", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     ######################################################################
     #  T E S T   S A D   P A T H S
     ######################################################################
@@ -166,30 +189,6 @@ class TestYourResourceServer(TestCase):
         test_product.available = "yes"
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    # def test_create_product_bad_price(self):
-    #     """It should not Create a Product with bad price data"""
-    #     test_product = ProductFactory()
-    #     logging.debug(test_product)
-    #     # change price to a price which is not in the specified range
-    #     test_product.price = -5.0
-    #     response = self.client.post(BASE_URL, json=test_product.serialize())
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_update_product_no_id_found(self):
-        """It should return 404 if update a product with the id not found"""
-        # create a product to update
-        test_product = ProductFactory()
-        response = self.client.post(BASE_URL, json=test_product.serialize())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # update a not exist id
-        new_product = response.get_json()
-        logging.debug(new_product)
-        new_product["category"] = "unknown"
-        wrong_id = new_product["id"] + 1
-        response = self.client.put(f"{BASE_URL}/{wrong_id}", json=new_product)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_product_bad_price_1(self):
         """It should not Create a Product with the price data smaller than minimum price"""
