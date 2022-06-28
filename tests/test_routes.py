@@ -84,7 +84,7 @@ class TestYourResourceServer(TestCase):
         data = resp.get_json()
         self.assertEqual(data["name"], "Product REST API Service")
         self.assertEqual(data["version"], "1.0")
-        self.assertEqual(data["paths"], "http://localhost/")
+        self.assertEqual(data["paths"], "http://localhost/products")
 
     def test_get_product_list(self):
         """It should Get a list of Products"""
@@ -142,6 +142,8 @@ class TestYourResourceServer(TestCase):
         response = self.client.delete(f"{BASE_URL}/{test_product.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
+        response = self.client.get(f"{BASE_URL}/{test_product.id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # #####################################################################
     def test_get_product(self):
