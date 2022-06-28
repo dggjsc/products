@@ -4,9 +4,11 @@ Models for Product
 All of the models are stored in this module
 """
 import logging
+
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
 # from tomlkit import integer
 MIN_PRICE = 10.00
 MAX_PRICE = 100.00
@@ -24,26 +26,29 @@ db = SQLAlchemy()
 # Defining acceptable input for names and descriptions
 
 
-def acceptable_names():
-    return ["shirt", "sweater", "pants", "lounge_wear"]
+# def acceptable_names():
+#     return ["shirt", "sweater", "pants", "lounge_wear"]
 
 
-def acceptable_description():
-    return ["unavailable", "Relaxed Fit", "Slim Fit"]
+# def acceptable_description():
+#     return ["unavailable", "Relaxed Fit", "Slim Fit"]
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
 
 
 class Product(db.Model):
     """
     Class that represents a product
     """
+
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    description = db.Column(db.String(63), nullable=False, server_default=("unavailable"))
+    description = db.Column(
+        db.String(63), nullable=False, server_default=("unavailable")
+    )
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
@@ -63,7 +68,7 @@ class Product(db.Model):
 
     def update(self):
         """
-        Updates a Pet to the database
+        Updates a Product to the database
         """
         logger.info("Saving %s", self.name)
         if not self.id:
@@ -71,21 +76,22 @@ class Product(db.Model):
         db.session.commit()
 
     def delete(self):
-        """ Removes a product from the data store """
+        """Removes a product from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self) -> dict:
-        """ Serializes a product into a dictionary """
-        return {"id": self.id,
-                "name": self.name,
-                "description": self.description,
-                "category": self.category,
-                "price": self.price,
-                "available": self.available,
-                "rating": self.rating
-                }
+        """Serializes a product into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "category": self.category,
+            "price": self.price,
+            "available": self.available,
+            "rating": self.rating,
+        }
 
     def deserialize(self, data: dict):
         """
@@ -103,13 +109,11 @@ class Product(db.Model):
                     self.price = data["price"]
                 else:
                     raise DataValidationError(
-                        "Invalid range for [price]: "
-                        + str(data["price"])
+                        "Invalid range for [price]: " + str(data["price"])
                     )
             else:
                 raise DataValidationError(
-                    "Invalid type for float [price]: "
-                    + str(type(data["price"]))
+                    "Invalid type for float [price]: " + str(type(data["price"]))
                 )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
@@ -123,13 +127,11 @@ class Product(db.Model):
                     self.rating = data["rating"]
                 else:
                     raise DataValidationError(
-                        "Invalid range for [rating]: "
-                        + str(data["rating"])
+                        "Invalid range for [rating]: " + str(data["rating"])
                     )
             else:
                 raise DataValidationError(
-                    "Invalid type for [rating]: "
-                    + str(type(data["rating"]))
+                    "Invalid type for [rating]: " + str(type(data["rating"]))
                 )
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
@@ -142,12 +144,12 @@ class Product(db.Model):
             )
         return self
 
-##################################################
-# CLASS METHODS
-##################################################
+    ##################################################
+    # CLASS METHODS
+    ##################################################
     @classmethod
     def init_db(cls, app: Flask):
-        """ Initializes the database session
+        """Initializes the database session
 
         :param app: the Flask app
         :type data: Flask
@@ -162,36 +164,30 @@ class Product(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the products in the database """
+        """Returns all of the products in the database"""
         logger.info("Processing all products")
         return cls.query.all()
 
     @classmethod
-    def find(cls, by_id):
-        """ Finds a product by it's ID """
-        logger.info("Processing lookup for id %s ...", by_id)
-        return cls.query.get_or_404(by_id)
+    def find(cls, product_id: int):
+        """Find a Product by it's id
 
-    @classmethod
-    def find_or_404(cls, product_id: int):
-        """Find a Pet by it's id
+        :param product_id: the id of the Product to find
+        :type product_id: int
 
-        :param pet_id: the id of the Pet to find
-        :type pet_id: int
-
-        :return: an instance with the pet_id, or 404_NOT_FOUND if not found
-        :rtype: Pet
+        :return: an instance with the product_id, or 404_NOT_FOUND if not found
+        :rtype: Product
 
         """
         logger.info("Processing lookup or 404 for id %s ...", product_id)
         return cls.query.get_or_404(product_id)
 
-    @classmethod
-    def find_by_name(cls, name):
-        """Returns all products with the given name
+    # @classmethod
+    # def find_by_name(cls, name):
+    #     """Returns all products with the given name
 
-        Args:
-            name (string): the name of the products you want to match
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
+    #     Args:
+    #         name (string): the name of the products you want to match
+    #     """
+    #     logger.info("Processing name query for %s ...", name)
+    #     return cls.query.filter(cls.name == name)
