@@ -3,12 +3,12 @@ Test cases for Product Model
 
 """
 # from itertools import product
-from math import prod
+# from math import prod
 import os
 import logging
 import unittest
 
-from sqlalchemy import true
+# from sqlalchemy import true
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
@@ -24,11 +24,11 @@ DATABASE_URI = os.getenv(
 
 
 class TestProduct(unittest.TestCase):
-    """ Test Cases for Product Model """
+    """Test Cases for Product Model"""
 
     @classmethod
     def setUpClass(cls):
-        """ This runs once before the entire test suite """
+        """This runs once before the entire test suite"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -38,16 +38,16 @@ class TestProduct(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.close()
 
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         db.session.query(Product).delete()  # clean up the last tests
         db.session.commit()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         db.session.remove()
 
     ######################################################################
@@ -56,7 +56,14 @@ class TestProduct(unittest.TestCase):
 
     def test_create_a_product(self):
         """It should Create a product and assert that it exists"""
-        product = Product(name="shirt", category="men's clothing", available=True, description='relaxed', price=20.0, rating=3)
+        product = Product(
+            name="shirt",
+            category="men's clothing",
+            available=True,
+            description="relaxed",
+            price=20.0,
+            rating=3,
+        )
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -66,12 +73,19 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, 3)
-    
+
     def test_add_a_product(self):
         """It should Create a product and add it to the database"""
         products = Product.all()
         self.assertEqual(products, [])
-        product = Product(name="shirt", category="women's clothing", available=True, price=15.0, description="Relaxed Fit", rating=1)
+        product = Product(
+            name="shirt",
+            category="women's clothing",
+            available=True,
+            price=15.0,
+            description="Relaxed Fit",
+            rating=1,
+        )
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
         product.create()
@@ -79,7 +93,7 @@ class TestProduct(unittest.TestCase):
         self.assertIsNotNone(product.id)
         products = Product.all()
         self.assertEqual(len(products), 1)
-    
+
     def test_update_a_product(self):
         """It should Update a Product"""
         product = ProductFactory()
@@ -241,8 +255,6 @@ class TestProduct(unittest.TestCase):
     def test_find_or_404_not_found(self):
         """It should return 404 not found"""
         self.assertRaises(NotFound, Product.find, 0)
-
-
 
     # def test_invalid_name(self):
     #     """It should not make a product with invalid name"""

@@ -4,9 +4,11 @@ Models for Product
 All of the models are stored in this module
 """
 import logging
+
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
 # from tomlkit import integer
 MIN_PRICE = 10.00
 MAX_PRICE = 100.00
@@ -33,17 +35,20 @@ db = SQLAlchemy()
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
 
 
 class Product(db.Model):
     """
     Class that represents a product
     """
+
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    description = db.Column(db.String(63), nullable=False, server_default=("unavailable"))
+    description = db.Column(
+        db.String(63), nullable=False, server_default=("unavailable")
+    )
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
@@ -71,21 +76,22 @@ class Product(db.Model):
         db.session.commit()
 
     def delete(self):
-        """ Removes a product from the data store """
+        """Removes a product from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self) -> dict:
-        """ Serializes a product into a dictionary """
-        return {"id": self.id,
-                "name": self.name,
-                "description": self.description,
-                "category": self.category,
-                "price": self.price,
-                "available": self.available,
-                "rating": self.rating
-                }
+        """Serializes a product into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "category": self.category,
+            "price": self.price,
+            "available": self.available,
+            "rating": self.rating,
+        }
 
     def deserialize(self, data: dict):
         """
@@ -103,13 +109,11 @@ class Product(db.Model):
                     self.price = data["price"]
                 else:
                     raise DataValidationError(
-                        "Invalid range for [price]: "
-                        + str(data["price"])
+                        "Invalid range for [price]: " + str(data["price"])
                     )
             else:
                 raise DataValidationError(
-                    "Invalid type for float [price]: "
-                    + str(type(data["price"]))
+                    "Invalid type for float [price]: " + str(type(data["price"]))
                 )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
@@ -123,13 +127,11 @@ class Product(db.Model):
                     self.rating = data["rating"]
                 else:
                     raise DataValidationError(
-                        "Invalid range for [rating]: "
-                        + str(data["rating"])
+                        "Invalid range for [rating]: " + str(data["rating"])
                     )
             else:
                 raise DataValidationError(
-                    "Invalid type for [rating]: "
-                    + str(type(data["rating"]))
+                    "Invalid type for [rating]: " + str(type(data["rating"]))
                 )
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
@@ -142,12 +144,12 @@ class Product(db.Model):
             )
         return self
 
-##################################################
-# CLASS METHODS
-##################################################
+    ##################################################
+    # CLASS METHODS
+    ##################################################
     @classmethod
     def init_db(cls, app: Flask):
-        """ Initializes the database session
+        """Initializes the database session
 
         :param app: the Flask app
         :type data: Flask
@@ -162,7 +164,7 @@ class Product(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the products in the database """
+        """Returns all of the products in the database"""
         logger.info("Processing all products")
         return cls.query.all()
 
