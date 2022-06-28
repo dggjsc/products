@@ -145,7 +145,7 @@ class TestYourResourceServer(TestCase):
 
     # #####################################################################
     def test_get_product(self):
-        '''It should return a single product'''
+        """It should return a single product"""
         test_product = self._create_products(1)[0]
         response = self.client.get(f"{BASE_URL}/{test_product.id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -261,7 +261,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_product_no_product(self):
-        '''The Product with this index doesn't exist'''
+        """The Product with this index doesn't exist"""
         invalid_index = -1
         response = self.client.get(f"{BASE_URL}/{invalid_index}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
