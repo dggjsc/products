@@ -60,8 +60,6 @@ Create a product:
 http POST localhost:8000/products name="" description="" category="" price:=<float> available:=<bool> rating:=<int>
 ```
 You must specifiy the ``name``, ``description``, ``price`` and ``rating``of the product. 
-- Acceptable names are ``"shirt", "sweater", "pants", "lounge_wear"``
-- Acceptable descriptions are ``"unavailable", "Relaxed Fit", "Slim Fit"``
 - Acceptable price is within range: ``10.0-100.0``
 - Acceptable rating is between ``0-5``
 
