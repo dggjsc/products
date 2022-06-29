@@ -10,7 +10,6 @@ import logging
 from unittest import TestCase
 
 # from unittest.mock import MagicMock, patch
-from flask import jsonify
 from service import app
 from service.models import Product
 from service.models import db
@@ -268,7 +267,7 @@ class TestYourResourceServer(TestCase):
         invalid_index = -1
         response = self.client.get(f"{BASE_URL}/{invalid_index}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     def test_method_not_allowed_put(self):
         """ It should Handle PUT request for /products with 405_METHOD_NOT_ALLOWED"""
         resp = self.client.put('/products')
@@ -276,6 +275,7 @@ class TestYourResourceServer(TestCase):
             resp.status_code,
             status.HTTP_405_METHOD_NOT_ALLOWED
         )
+
     def test_method_not_allowed_get(self):
         """ It should Handle GET request for /products with 405_METHOD_NOT_ALLOWED"""
         resp = self.client.put('/products')
@@ -283,6 +283,7 @@ class TestYourResourceServer(TestCase):
             resp.status_code,
             status.HTTP_405_METHOD_NOT_ALLOWED
         )
+
     def test_method_not_allowed_delete(self):
         """ It should Handle DELETE request for /products with 405_METHOD_NOT_ALLOWED"""
         resp = self.client.put('/products')
@@ -290,4 +291,3 @@ class TestYourResourceServer(TestCase):
             resp.status_code,
             status.HTTP_405_METHOD_NOT_ALLOWED
         )
-
