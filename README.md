@@ -1,60 +1,86 @@
-# NYU DevOps Project Template
+# NYU DevOps Project-- Product Team
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://github.com/Products-Development-Team/products/actions/workflows/ci.yml/badge.svg)](https://github.com/Products-Development-Team/products/actions)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 
-This is a skeleton you can use to start your projects
+This is an NYU DevOps project that creates a RESTful microservice using Python Flask and PostgreSQL. 
 
-## Overview
+## Prerequisite Software Installation
+This project uses Docker and VS Code with the Remote Containers extension to provide a consistent repeatable disposable development environment. 
 
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
+You will need the following software installed: 
+- Docker Desktop
+- VS Code
+- Remote Containers extension from the VS Code Marketplace
 
-## Automatic Setup
-
-The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
-
-## Manual Setup
-
-You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own `README.md` file so be selective in what you copy.
-
-There are 4 hidden files that you will need to copy manually if you use the Mac Finder or Windows Explorer to copy files from this folder into your repo folder.
-
-These should be copied using a bash shell as follows:
+## Bring up development environment
+To bring up the development environment you should clone this repo, change into the repo directory, and then open Visual Studio Code using the code . command. VS Code will prompt you to reopen in a container and you should select it. This will take a while the first time as it builds the Docker image and creates a container from it to develop in.
 
 ```bash
-    cp .gitignore  ../<your_repo_folder>/
-    cp .flaskenv ../<your_repo_folder>/
-    cp .gitattributes ../<your_repo_folder>/
+git clone git@github.com:Products-Development-Team/products.git
+cd products
+code .
 ```
 
-## Contents
+## Running the tests
+You can run the tests in a ```bash``` terminal using the following command: 
+```bash
+make test
+```
+This will run the test suite and report the code coverage. 
 
-The project contains the following:
-
-```text
-.gitignore          - this will ignore vagrant and other metadata files
-.flaskenv           - Environment variables to configure Flask
-.gitattributes      - File to gix Windows CRLF issues
-.devcontainers/     - Folder with support for VSCode Remote Containers
-dot-env-example     - copy to .env to use environment variables
-requirements.txt    - list if Python libraries required by your code
-config.py           - configuration parameters
-
-service/                   - service python package
-├── __init__.py            - package initializer
-├── models.py              - module with business models
-├── routes.py              - module with service routes
-└── utils                  - utility package
-    ├── error_handlers.py  - HTTP error handling code
-    ├── log_handlers.py    - logging setup code
-    └── status.py          - HTTP status constants
-
-tests/              - test cases package
-├── __init__.py     - package initializer
-├── test_models.py  - test suite for business models
-└── test_routes.py  - test suite for service routes
+## Check PEP8 Standard
+We've included flake8, Pylint and Black in the ```requirements.txt```, you can check if the code is compliant using the following command: 
+```bash
+make lint
 ```
 
+## Run the REST service
+To run the service, use the same ```bash``` terminal that you ran the tests in and use 
+```bash
+honcho start
+``` 
+(Press CTRL+C to exit).
+You should be able to open a web page in a local browser at: http://localhost:8000
+
+## Make REST calls
+While the service is running, you can open a second ``bash`` terminal and issue the following commands: 
+
+List all resources (Root URL):
+```bash
+http GET http://localhost:8000/
+```
+List all products: 
+```bash
+http GET http://localhost:8000/products
+```
+Create a product: 
+```bash
+http POST localhost:8000/products name="" description="" category="" price:=<float> available:=<bool> rating:=<int>
+```
+You must specifiy the ``name``, ``description``, ``category``, ``price`` and ``rating``of the product. 
+- Acceptable price is within range: ``10.0-100.0``
+- Acceptable rating is between ``0-5``
+
+Read a product:
+```bash
+http GET localhost:8000/products/<int:product_id>
+```
+Update a product: 
+```bash
+http PUT localhost:8000/products/<int:product_id>
+```
+Delete a product: 
+```bash
+http DELETE localhost:8000/products/<int:product_id>
+```
+
+## What's featured in the project? 
+* app/routes.py -- the main Service routes using Python Flask
+* app/models.py -- the data model using SQLAlchemy
+* tests/test_routes.py -- test cases against the Product service
+* tests/test_models.py -- test cases against the Product model
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
