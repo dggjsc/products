@@ -44,7 +44,7 @@ def list_products():
     products = []
     rating = request.args.get("rating")
     if rating:
-        if not rating in ["1", "2", "3", "4", "5"]:
+        if rating not in ["1", "2", "3", "4", "5"]:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         rating = int(rating)
         while rating <= 5:

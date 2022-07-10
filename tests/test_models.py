@@ -314,3 +314,15 @@ class TestProduct(unittest.TestCase):
     def test_find_or_404_not_found(self):
         """It should return 404 not found"""
         self.assertRaises(NotFound, Product.find_or_404, 0)
+
+    def test_find_by_rating(self):
+        """It should Find a Product by Rating"""
+        products = ProductFactory.create_batch(10)
+        for product in products:
+            product.create()
+        rating = products[0].rating
+        count = len([product for product in products if product.rating == rating])
+        found = Product.find_by_rating(rating)
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertEqual(product.rating, rating)

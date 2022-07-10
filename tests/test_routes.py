@@ -184,6 +184,19 @@ class TestYourResourceServer(TestCase):
         wrong_id = new_product["id"] + 1
         response = self.client.put(f"{BASE_URL}/{wrong_id}", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_query_list_by_rating(self):
+        """It should Query Products by Rating"""
+        products = self._create_products(10)
+        test_rating = products[0].rating
+        rating_products = [product for product in products if product.rating >= test_rating]
+        response = self.client.get(
+            BASE_URL,
+            query_string=f"rating={str(test_rating)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), len(rating_products))
 
     ######################################################################
     #  T E S T   S A D   P A T H S
@@ -290,4 +303,16 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(
             resp.status_code,
             status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    def test_query_product_list_by_bad_rating(self):
+        """It should return a 406_NOT_ACCEPTABLE error if query a bad rating"""
+        response = self.client.get(
+            BASE_URL,
+            query_string=f"rating=3.2"
+        )
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        response = self.client.get(
+            BASE_URL,
+            query_string=f"rating=good"
         )
