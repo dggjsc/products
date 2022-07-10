@@ -184,7 +184,7 @@ class TestYourResourceServer(TestCase):
         wrong_id = new_product["id"] + 1
         response = self.client.put(f"{BASE_URL}/{wrong_id}", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     def test_query_list_by_rating(self):
         """It should Query Products by Rating"""
         products = self._create_products(10)
@@ -309,10 +309,10 @@ class TestYourResourceServer(TestCase):
         """It should return a 406_NOT_ACCEPTABLE error if query a bad rating"""
         response = self.client.get(
             BASE_URL,
-            query_string=f"rating=3.2"
+            query_string="rating=3.2"
         )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         response = self.client.get(
             BASE_URL,
-            query_string=f"rating=good"
+            query_string="rating=good"
         )
