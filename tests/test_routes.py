@@ -316,3 +316,4 @@ class TestYourResourceServer(TestCase):
             BASE_URL,
             query_string="rating=good"
         )
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
