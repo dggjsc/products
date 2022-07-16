@@ -42,7 +42,13 @@ def list_products():
     """Returns all of the Products"""
     app.logger.info("Request for Product list")
     products = []
-    products = Product.all()
+    rating = request.args.get("rating")
+    if rating:
+        if rating not in ["1", "2", "3", "4", "5"]:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        products = Product.find_by_rating(int(rating))
+    else:
+        products = Product.all()
     results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK

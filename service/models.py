@@ -201,3 +201,17 @@ class Product(db.Model):
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
+
+    @classmethod
+    def find_by_rating(cls, rating: int) -> list:
+        """Returns all Products by their rating
+
+        :param rating: values are [1, 2, 3, 4, 5]
+        :type available: int
+
+        :return: a collection of Products with equal or greater rating we want
+        :rtype: list
+
+        """
+        logger.info("Processing rating query for %s ...", rating)
+        return cls.query.filter(cls.rating >= int(rating))
