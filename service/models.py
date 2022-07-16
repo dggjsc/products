@@ -217,6 +217,20 @@ class Product(db.Model):
         return cls.query.filter(cls.rating >= int(rating))
 
     @classmethod
+    def find_by_category(cls, category: str) -> list:
+        """Returns all of the Products in a category
+
+        :param category: the category of the Products you want to match
+        :type category: str
+
+        :return: a collection of Products in that category
+        :rtype: list
+
+        """
+        logger.info("Processing category query for %s ...", category)
+        return cls.query.filter(cls.category == category)
+
+    @classmethod
     def find_by_price(cls, price: float) -> list:
         """Returns all Products by their price
 

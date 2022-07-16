@@ -119,7 +119,7 @@ class TestProduct(unittest.TestCase):
         logging.debug(products)
         # make sure they got saved
         self.assertEqual(len(Product.all()), 5)
-        # find the 2nd pet in the list
+        # find the 2nd product in the list
         product = Product.find(products[1].id)
         self.assertIsNot(product, None)
         self.assertEqual(product.id, products[1].id)
@@ -326,6 +326,18 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertGreaterEqual(product.rating, rating)
+
+    def test_find_by_category(self):
+        """It should Find Products by Category"""
+        products = ProductFactory.create_batch(10)
+        for product in products:
+            product.create()
+        category = products[0].category
+        count = len([product for product in products if product.category == category])
+        found = product.find_by_category(category)
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertEqual(product.category, category)
 
     def test_find_by_price(self):
         """It should Find a Product by Price"""
