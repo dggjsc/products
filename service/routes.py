@@ -43,10 +43,13 @@ def list_products():
     app.logger.info("Request for Product list")
     products = []
     rating = request.args.get("rating")
+    category = request.args.get("category")
     if rating:
         if rating not in ["1", "2", "3", "4", "5"]:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_rating(int(rating))
+    elif category:
+        products = Product.find_by_category(category)
     else:
         products = Product.all()
     results = [product.serialize() for product in products]

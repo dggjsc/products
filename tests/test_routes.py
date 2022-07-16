@@ -16,6 +16,7 @@ from service.models import db
 from service.routes import init_db
 from service.utils import status
 from tests.factories import ProductFactory  # HTTP Status Codes
+from urllib.parse import quote_plus
 
 # DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 DATABASE_URI = os.getenv(
@@ -317,3 +318,19 @@ class TestYourResourceServer(TestCase):
             query_string="rating=good"
         )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+
+    def test_query_pet_list_by_category(self):
+        """It should Query Products by Category"""
+        products = self._create_products(10)
+        test_category = products[0].category
+        category_products = [product for product in products if product.category == test_category]
+        response = self.client.get(
+            BASE_URL,
+            query_string=f"category={quote_plus(test_category)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), len(category_products))
+        # check the data just to be sure
+        for product in data:
+            self.assertEqual(product["category"], test_category)
