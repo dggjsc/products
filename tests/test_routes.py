@@ -319,7 +319,7 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
-    def test_query_pet_list_by_category(self):
+    def test_query_product_list_by_category(self):
         """It should Query Products by Category"""
         products = self._create_products(10)
         test_category = products[0].category
