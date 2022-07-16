@@ -229,3 +229,18 @@ class Product(db.Model):
         """
         logger.info("Processing category query for %s ...", category)
         return cls.query.filter(cls.category == category)
+        
+    @classmethod
+    def find_by_price(cls, price: float) -> list:
+        """Returns all Products by their price
+
+        :param price: values are float number
+        :type available: float
+
+        :return: a collection of Products with equal or less price we want
+        :rtype: list
+
+        """
+        logger.info("Processing price query for %s ...", price)
+        return cls.query.filter(cls.price <= price)
+

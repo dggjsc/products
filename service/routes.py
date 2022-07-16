@@ -43,16 +43,30 @@ def list_products():
     app.logger.info("Request for Product list")
     products = []
     rating = request.args.get("rating")
+
     category = request.args.get("category")
+    price = request.args.get("price")
     if rating:
         if rating not in ["1", "2", "3", "4", "5"]:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_rating(int(rating))
     elif category:
         products = Product.find_by_category(category)
+    elif price:
+        try:
+            price = float(price)
+        except ValueError:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        if price < 0:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        products = Product.find_by_price(price)
     else:
         products = Product.all()
     results = [product.serialize() for product in products]
+    if rating:
+        results.sort(key=lambda n: n["rating"], reverse=True)
+    elif price:
+        results.sort(key=lambda n: n["price"], reverse=True)
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK
 
