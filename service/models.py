@@ -209,9 +209,9 @@ class Product(db.Model):
         :param rating: values are [1, 2, 3, 4, 5]
         :type available: int
 
-        :return: a collection of Products with equal rating we want
+        :return: a collection of Products with equal or greater rating we want
         :rtype: list
 
         """
         logger.info("Processing rating query for %s ...", rating)
-        return cls.query.filter(cls.rating == int(rating))
+        return cls.query.filter(cls.rating >= int(rating))

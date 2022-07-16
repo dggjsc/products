@@ -321,8 +321,8 @@ class TestProduct(unittest.TestCase):
         for product in products:
             product.create()
         rating = products[0].rating
-        count = len([product for product in products if product.rating == rating])
+        count = len([product for product in products if product.rating >= rating])
         found = Product.find_by_rating(rating)
         self.assertEqual(found.count(), count)
         for product in found:
-            self.assertEqual(product.rating, rating)
+            self.assertGreaterEqual(product.rating, rating)

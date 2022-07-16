@@ -46,10 +46,7 @@ def list_products():
     if rating:
         if rating not in ["1", "2", "3", "4", "5"]:
             return "", status.HTTP_406_NOT_ACCEPTABLE
-        rating = int(rating)
-        while rating <= 5:
-            products += Product.find_by_rating(rating)
-            rating += 1
+        products = Product.find_by_rating(int(rating))
     else:
         products = Product.all()
     results = [product.serialize() for product in products]
