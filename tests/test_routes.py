@@ -198,6 +198,19 @@ class TestYourResourceServer(TestCase):
         data = response.get_json()
         self.assertEqual(len(data), len(rating_products))
 
+    def test_query_list_by_price(self):
+        """It should Query Products by Price"""
+        products = self._create_products(10)
+        test_price = products[0].price
+        price_products = [product for product in products if product.price <= test_price]
+        response = self.client.get(
+            BASE_URL,
+            query_string=f"price={str(test_price)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), len(price_products))
+
     ######################################################################
     #  T E S T   S A D   P A T H S
     ######################################################################
@@ -315,5 +328,18 @@ class TestYourResourceServer(TestCase):
         response = self.client.get(
             BASE_URL,
             query_string="rating=good"
+        )
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+
+    def test_query_product_list_by_bad_price(self):
+        """It should return a 406_NOT_ACCEPTABLE error if query a bad price"""
+        response = self.client.get(
+            BASE_URL,
+            query_string="price=expensive"
+        )
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        response = self.client.get(
+            BASE_URL,
+            query_string="price=-23"
         )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
