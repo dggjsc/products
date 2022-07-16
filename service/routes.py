@@ -59,6 +59,10 @@ def list_products():
     else:
         products = Product.all()
     results = [product.serialize() for product in products]
+    if rating:
+        results.sort(key=lambda n: n["rating"], reverse=True)
+    elif price:
+        results.sort(key=lambda n: n["price"], reverse=True)
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK
 
