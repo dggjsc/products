@@ -156,6 +156,51 @@ def update_products(product_id):
     app.logger.info("Product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
+######################################################################
+# UPDATE THE RATING OF A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>/rating",methods=["PUT"])
+def update_rating_of_product(product_id):
+    """
+    Updates the rating of a product on the basis of feedback provided.
+    Args:
+        product_id (_type_): _description_
+    """
+    app.logger.info("Request to update the rating of the product with id: %s", product_id)
+    check_content_type("application/json")
+    product = Product.find(product_id)
+    if not product:
+        abort(
+            status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found."
+        )
+    new_rating = request.get_json()
+    if not isinstance(new_rating["rating"], int):
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, f"Rating should be of integer datatype"
+        )
+    if new_rating["rating"] <= 0 or new_rating["rating"] > 5:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, f"The ratings can be from [1,5]"
+        )
+    if new_rating["rating"] is not None:
+        product.id = product_id
+        myJson = product.serialize()
+        product.deserialize(myJson)
+        product.id = product_id
+        if product.no_of_users_rated is not None:
+            product.no_of_users_rated = product.no_of_users_rated + 1
+        else:
+            product.no_of_users_rated = 1
+        if product.cumulative_ratings is not None:
+            product.cumulative_ratings = product.cumulative_ratings + new_rating["rating"]
+        else:
+            product.cumulative_ratings = new_rating["rating"]
+        product.rating = product.cumulative_ratings / product.no_of_users_rated
+        product.update()
+
+        app.logger.info("Product with ID [%s] updated.", product.id)
+    return jsonify(product.serialize()), status.HTTP_200_OK
+    
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
