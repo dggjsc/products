@@ -3,11 +3,13 @@ Models for Product
 
 All of the models are stored in this module
 """
+from email.policy import default
 import logging
 
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import null
 
 # from tomlkit import integer
 MIN_PRICE = 10.00
@@ -52,7 +54,9 @@ class Product(db.Model):
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
-    rating = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Float, nullable=True)
+    cumulative_ratings = db.Column(db.Integer, default=0)
+    no_of_users_rated = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
@@ -91,6 +95,8 @@ class Product(db.Model):
             "price": self.price,
             "available": self.available,
             "rating": self.rating,
+            "cumulative_ratings": self.cumulative_ratings,
+            "no_of_users_rated": self.no_of_users_rated,
         }
 
     def deserialize(self, data: dict):
@@ -122,17 +128,42 @@ class Product(db.Model):
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
-            if isinstance(data["rating"], int):
-                if data["rating"] >= MIN_RATE and data["rating"] <= MAX_RATE:
-                    self.rating = data["rating"]
+            if data["rating"] is not None:
+                if isinstance(data["rating"], float):
+                    if data["rating"] >= MIN_RATE and data["rating"] <= MAX_RATE:
+                        self.rating = data["rating"]
+                    else:
+                        raise DataValidationError(
+                            "Invalid range for [rating]: " + str(data["rating"])
+                        )
                 else:
                     raise DataValidationError(
-                        "Invalid range for [rating]: " + str(data["rating"])
+                        "Invalid type for [rating]: " + str(type(data["rating"]))
                     )
-            else:
-                raise DataValidationError(
-                    "Invalid type for [rating]: " + str(type(data["rating"]))
-                )
+            if data["cumulative_ratings"] is not None:
+                if isinstance(data["cumulative_ratings"], int):
+                    if data["cumulative_ratings"] >= 0:
+                        self.cumulative_ratings = data["cumulative_ratings"]
+                    else:
+                        raise DataValidationError(
+                            "Invalid Range for [cumulative_ratings]: " + str(data["cumulative_ratings"])
+                        )
+                else:
+                    raise DataValidationError(
+                        "Invalid Type for [cumulative_ratings]: " + str(type(data["cumulative_ratings"]))
+                    )
+            if data["no_of_users_rated"] is not None:
+                if isinstance(data["no_of_users_rated"], int):
+                    if data["no_of_users_rated"] >= 0:
+                        self.no_of_users_rated = data["no_of_users_rated"]
+                    else:
+                        raise DataValidationError(
+                            "Invalid Range for [no_of_users_rated]: " + str(data["no_of_users_rated"])
+                        )
+                else:
+                    raise DataValidationError(
+                        "Invalid Type for [no_of_users_rated]: " + str(type(data["no_of_users_rated"]))
+                    )
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
@@ -203,18 +234,18 @@ class Product(db.Model):
         return cls.query.filter(cls.name == name)
 
     @classmethod
-    def find_by_rating(cls, rating: int) -> list:
+    def find_by_rating(cls, rating: float) -> list:
         """Returns all Products by their rating
 
-        :param rating: values are [1, 2, 3, 4, 5]
-        :type available: int
+        :param rating: ratings can be inrange from [1,5]
+        :type available: float
 
         :return: a collection of Products with equal or greater rating we want
         :rtype: list
 
         """
         logger.info("Processing rating query for %s ...", rating)
-        return cls.query.filter(cls.rating >= int(rating))
+        return cls.query.filter(cls.rating >= rating)
 
     @classmethod
     def find_by_category(cls, category: str) -> list:

@@ -20,4 +20,4 @@ class ProductFactory(factory.Factory):
     category = FuzzyChoice(choices=["men's clothing", "women's clothing"])
     price = FuzzyFloat(MIN_PRICE, MAX_PRICE)
     available = FuzzyChoice(choices=[True, False])
-    rating = FuzzyInteger(1, 5)
+    #rating = FuzzyInteger(1, 5)
