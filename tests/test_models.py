@@ -4,15 +4,15 @@ Test cases for Product Model
 """
 # from itertools import product
 # from math import prod
-from itertools import product
+#from itertools import product
 import os
 import logging
 import unittest
 
-from random import *
+from random import randint
 
 # from sqlalchemy import true
-from sqlalchemy import null
+#from sqlalchemy import null
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
@@ -235,14 +235,6 @@ class TestProduct(unittest.TestCase):
     def test_deserialize_bad_data(self):
         """It should not deserialize bad data"""
         data = "this is not a dictionary"
-        product = Product()
-        self.assertRaises(DataValidationError, product.deserialize, data)
-
-    def test_deserialize_invalid_attribute(self):
-        '''It tries to deserialize a JSON with bad attribute'''
-        test_product = ProductFactory()
-        data = test_product.serialize()
-        data["ImaginaryAttribute"] = "Not Real"
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
 
