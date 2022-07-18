@@ -17,6 +17,7 @@ from service.routes import init_db
 from service.utils import status
 from tests.factories import ProductFactory  # HTTP Status Codes
 from urllib.parse import quote_plus
+from random import *
 
 # DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 DATABASE_URI = os.getenv(
@@ -189,6 +190,23 @@ class TestYourResourceServer(TestCase):
     def test_query_list_by_rating(self):
         """It should Query Products by Rating"""
         products = self._create_products(10)
+        for product in products:
+            product.no_of_users_rated = randint(1,10)
+            product.cumulative_ratings = 0
+            for x in range(product.no_of_users_rated):
+                product.cumulative_ratings += randint(1, 5)
+            product.rating = product.cumulative_ratings
+            product.rating = product.rating / product.no_of_users_rated
+            response = self.client.get(
+                f"{BASE_URL}/product.id"
+            )
+            old_product = response.get_json()
+            logging.debug(old_product)
+            old_product["rating"] = product.rating
+            old_product["cumulative_ratings"] = product.cumulative_ratings
+            old_product["no_of_users_rated"] = product.no_of_users_rated
+            response = self.client.put(f"{BASE_URL}/{old_product['id']}", json=old_product)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
         test_rating = products[0].rating
         rating_products = [product for product in products if product.rating is not None and product.rating >= test_rating]
         if test_rating is not None:
@@ -324,7 +342,7 @@ class TestYourResourceServer(TestCase):
         """It should return a 406_NOT_ACCEPTABLE error if query a bad rating"""
         response = self.client.get(
             BASE_URL,
-            query_string="rating=3.2"
+            query_string="rating=9.2"
         )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         response = self.client.get(

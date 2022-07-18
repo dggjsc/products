@@ -372,6 +372,7 @@ class TestProduct(unittest.TestCase):
                 product.cumulative_ratings += randint(1, 5)
             product.rating = product.cumulative_ratings
             product.rating = product.rating / product.no_of_users_rated
+            
         rating = products[0].rating
         count = len([product for product in products if product.rating is not None and product.rating >= rating])
         myCount = 0

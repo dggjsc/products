@@ -42,15 +42,22 @@ def list_products():
     """Returns all of the Products"""
     app.logger.info("Request for Product list")
     products = []
-    rating = request.args.get("rating")
-
+    rating_str = request.args.get("rating")
+    rating = 0.0
+    app.logger.info("Rating_String : %s", rating_str)
+    try:
+        if rating_str is not None:
+            rating = float(rating_str)
+            app.logger.info("Valid Input : %s", str(rating))
+    except ValueError:
+        return "", status.HTTP_406_NOT_ACCEPTABLE
+    if rating_str is not None:
+        if rating <= 0 or rating > 5:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        products = Product.find_by_rating(rating)
     category = request.args.get("category")
     price = request.args.get("price")
-    if rating:
-        if rating not in ["1", "2", "3", "4", "5"]:
-            return "", status.HTTP_406_NOT_ACCEPTABLE
-        products = Product.find_by_rating(int(rating))
-    elif category:
+    if category:
         products = Product.find_by_category(category)
     elif price:
         try:
@@ -64,6 +71,7 @@ def list_products():
         products = Product.all()
     results = [product.serialize() for product in products]
     if rating:
+        results = [product.serialize() for product in products if product.rating is not None ]
         results.sort(key=lambda n: n["rating"], reverse=True)
     elif price:
         results.sort(key=lambda n: n["price"], reverse=True)
