@@ -171,16 +171,16 @@ def update_rating_of_product(product_id):
     product = Product.find(product_id)
     if not product:
         abort(
-            status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found."
+            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
         )
     new_rating = request.get_json()
     if not isinstance(new_rating["rating"], int):
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, f"Rating should be of integer datatype"
+            status.HTTP_406_NOT_ACCEPTABLE, description="Rating should be of integer datatype"
         )
     if new_rating["rating"] <= 0 or new_rating["rating"] > 5:
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, f"The ratings can be from [1,5]"
+            status.HTTP_406_NOT_ACCEPTABLE, description="The ratings can be from [1,5]"
         )
     if new_rating["rating"] is not None:
         product.id = product_id

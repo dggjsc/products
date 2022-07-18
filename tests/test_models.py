@@ -9,6 +9,8 @@ import os
 import logging
 import unittest
 
+from random import *
+
 # from sqlalchemy import true
 from sqlalchemy import null
 from werkzeug.exceptions import NotFound
@@ -364,6 +366,12 @@ class TestProduct(unittest.TestCase):
         products = ProductFactory.create_batch(10)
         for product in products:
             product.create()
+            product.no_of_users_rated = randint(1,10)
+            product.cumulative_ratings = 0
+            for x in range(product.no_of_users_rated):
+                product.cumulative_ratings += randint(1, 5)
+            product.rating = product.cumulative_ratings
+            product.rating = product.rating / product.no_of_users_rated
         rating = products[0].rating
         count = len([product for product in products if product.rating is not None and product.rating >= rating])
         myCount = 0
