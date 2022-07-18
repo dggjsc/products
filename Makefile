@@ -16,7 +16,7 @@ install: ## Install dependencies
 lint: ## Run the linter
 	$(info Running linting...)
 	flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 service . --count --max-complexity=10 --max-line-length=127 --statistics
+	flake8 service . --count --max-complexity=20 --max-line-length=127 --statistics
 
 test: ## Run the unit tests
 	$(info Running tests...)
