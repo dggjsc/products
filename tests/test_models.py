@@ -238,6 +238,14 @@ class TestProduct(unittest.TestCase):
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
 
+    def test_deserialize_invalid_attribute(self):
+        '''It tries to deserialize a JSON with bad attribute'''
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["ImaginaryAttribute"] = "Not Real"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_deserialize_bad_available(self):
         """It should not deserialize a bad available attribute"""
         test_product = ProductFactory()
@@ -407,3 +415,4 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertGreaterEqual(price, product.price)
+
