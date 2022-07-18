@@ -198,7 +198,7 @@ class TestYourResourceServer(TestCase):
             product.rating = product.cumulative_ratings
             product.rating = product.rating / product.no_of_users_rated
             response = self.client.get(
-                f"{BASE_URL}/product.id"
+                f"{BASE_URL}/{product.id}"
             )
             old_product = response.get_json()
             logging.debug(old_product)

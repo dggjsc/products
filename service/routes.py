@@ -45,6 +45,8 @@ def list_products():
     rating_str = request.args.get("rating")
     rating = 0.0
     app.logger.info("Rating_String : %s", rating_str)
+    category = request.args.get("category")
+    price = request.args.get("price")
     try:
         if rating_str is not None:
             rating = float(rating_str)
@@ -55,9 +57,7 @@ def list_products():
         if rating <= 0 or rating > 5:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_rating(rating)
-    category = request.args.get("category")
-    price = request.args.get("price")
-    if category:
+    elif category:
         products = Product.find_by_category(category)
     elif price:
         try:
