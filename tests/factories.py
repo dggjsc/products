@@ -2,7 +2,7 @@
 Test Factory to make fake objects for testing
 """
 import factory
-from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyFloat
+from factory.fuzzy import FuzzyChoice, FuzzyFloat
 from service.models import Product, MAX_PRICE, MIN_PRICE
 
 
@@ -20,4 +20,3 @@ class ProductFactory(factory.Factory):
     category = FuzzyChoice(choices=["men's clothing", "women's clothing"])
     price = FuzzyFloat(MIN_PRICE, MAX_PRICE)
     available = FuzzyChoice(choices=[True, False])
-    #rating = FuzzyInteger(1, 5)

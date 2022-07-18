@@ -3,13 +3,13 @@ Models for Product
 
 All of the models are stored in this module
 """
-from email.policy import default
+# from email.policy import default
 import logging
 
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import null
+# from sqlalchemy import null
 
 # from tomlkit import integer
 MIN_PRICE = 10.00

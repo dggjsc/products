@@ -71,7 +71,7 @@ def list_products():
         products = Product.all()
     results = [product.serialize() for product in products]
     if rating:
-        results = [product.serialize() for product in products if product.rating is not None ]
+        results = [product.serialize() for product in products if product.rating is not None]
         results.sort(key=lambda n: n["rating"], reverse=True)
     elif price:
         results.sort(key=lambda n: n["price"], reverse=True)
@@ -164,10 +164,11 @@ def update_products(product_id):
     app.logger.info("Product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # UPDATE THE RATING OF A PRODUCT
 ######################################################################
-@app.route("/products/<int:product_id>/rating",methods=["PUT"])
+@app.route("/products/<int:product_id>/rating", methods=["PUT"])
 def update_rating_of_product(product_id):
     """
     Updates the rating of a product on the basis of feedback provided.
@@ -208,7 +209,7 @@ def update_rating_of_product(product_id):
         product.update()
         app.logger.info("Product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
-    
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

@@ -4,7 +4,7 @@ Test cases for Product Model
 """
 # from itertools import product
 # from math import prod
-#from itertools import product
+# from itertools import product
 import os
 import logging
 import unittest
@@ -12,7 +12,7 @@ import unittest
 from random import randint
 
 # from sqlalchemy import true
-#from sqlalchemy import null
+# from sqlalchemy import null
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
@@ -205,7 +205,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["available"], product.available)
         self.assertIn("rating", data)
         self.assertEqual(data["rating"], product.rating)
-        self.assertIn("cumulative_ratings",data)
+        self.assertIn("cumulative_ratings", data)
         self.assertEqual(data["cumulative_ratings"], product.cumulative_ratings)
         self.assertIn("no_of_users_rated", data)
         self.assertEqual(data["no_of_users_rated"], product.no_of_users_rated)
@@ -366,13 +366,12 @@ class TestProduct(unittest.TestCase):
         products = ProductFactory.create_batch(10)
         for product in products:
             product.create()
-            product.no_of_users_rated = randint(1,10)
+            product.no_of_users_rated = randint(1, 10)
             product.cumulative_ratings = 0
             for x in range(product.no_of_users_rated):
                 product.cumulative_ratings += randint(1, 5)
             product.rating = product.cumulative_ratings
             product.rating = product.rating / product.no_of_users_rated
-            
         rating = products[0].rating
         count = len([product for product in products if product.rating is not None and product.rating >= rating])
         myCount = 0
@@ -407,4 +406,3 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertGreaterEqual(price, product.price)
-

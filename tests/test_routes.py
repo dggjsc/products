@@ -17,7 +17,7 @@ from service.routes import init_db
 from service.utils import status
 from tests.factories import ProductFactory  # HTTP Status Codes
 from urllib.parse import quote_plus
-from random import *
+from random import randint
 
 # DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 DATABASE_URI = os.getenv(
@@ -191,7 +191,7 @@ class TestYourResourceServer(TestCase):
         """It should Query Products by Rating"""
         products = self._create_products(10)
         for product in products:
-            product.no_of_users_rated = randint(1,10)
+            product.no_of_users_rated = randint(1, 10)
             product.cumulative_ratings = 0
             for x in range(product.no_of_users_rated):
                 product.cumulative_ratings += randint(1, 5)
@@ -243,8 +243,7 @@ class TestYourResourceServer(TestCase):
         response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_product = response.get_json()
-        self.assertAlmostEqual(new_product["rating"],3)
-
+        self.assertAlmostEqual(new_product["rating"], 3)
 
     ######################################################################
     #  T E S T   S A D   P A T H S
@@ -413,19 +412,16 @@ class TestYourResourceServer(TestCase):
         updated_product = response.get_json()
         self.assertAlmostEqual(updated_product["rating"], 3)
 
-
-    
     def test_user_sends_string_rating(self):
         '''User sends a string datatype for rating. It should return Error Code : 406'''
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        #Provide the Rating
         new_product = response.get_json()
         logging.debug(new_product)
         myJson = {}
         myJson["rating"] = "FalseRating"
-        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating",json=myJson)
+        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_user_sends_out_of_bounds_rating(self):
@@ -433,7 +429,6 @@ class TestYourResourceServer(TestCase):
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        #Provide Negative Rating:
         new_product = response.get_json()
         logging.debug(new_product)
         myJson = {}
@@ -441,7 +436,6 @@ class TestYourResourceServer(TestCase):
         response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
-    
     def test_user_sends_rating_of_invalid_product_id(self):
         '''User sends rating to invalid product id'''
         test_product = ProductFactory()
