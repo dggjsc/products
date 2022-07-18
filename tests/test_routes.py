@@ -231,6 +231,21 @@ class TestYourResourceServer(TestCase):
         data = response.get_json()
         self.assertEqual(len(data), len(price_products))
 
+    def test_first_rating_product(self):
+        '''It updates the rating of the product'''
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        new_product = response.get_json()
+        self.assertEqual(new_product["rating"], None)
+        myJson = {}
+        myJson["rating"] = 3
+        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_product = response.get_json()
+        self.assertAlmostEqual(new_product["rating"],3)
+
+
     ######################################################################
     #  T E S T   S A D   P A T H S
     ######################################################################
@@ -429,8 +444,13 @@ class TestYourResourceServer(TestCase):
     
     def test_user_sends_rating_of_invalid_product_id(self):
         '''User sends rating to invalid product id'''
-        invalid_product_id = -1
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        new_product = response.get_json()
+        logging.debug(new_product)
+        wrong_id = new_product["id"] + 1
         myJson = {}
         myJson["rating"] = 3
-        response = self.client.put(f"{BASE_URL}/{invalid_product_id}/rating", json=myJson)
+        response = self.client.put(f"{BASE_URL}/{wrong_id}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -178,6 +178,7 @@ def update_rating_of_product(product_id):
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
+        app.logger.info("Inside this condition")
         abort(
             status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
         )
@@ -195,17 +196,16 @@ def update_rating_of_product(product_id):
         myJson = product.serialize()
         product.deserialize(myJson)
         product.id = product_id
-        if product.no_of_users_rated is not None:
-            product.no_of_users_rated = product.no_of_users_rated + 1
-        else:
+        if product.no_of_users_rated is None or product.no_of_users_rated == 0:
             product.no_of_users_rated = 1
-        if product.cumulative_ratings is not None:
-            product.cumulative_ratings = product.cumulative_ratings + new_rating["rating"]
         else:
+            product.no_of_users_rated = product.no_of_users_rated + 1
+        if product.cumulative_ratings is None or product.cumulative_ratings == 0:
             product.cumulative_ratings = new_rating["rating"]
+        else:
+            product.cumulative_ratings = product.cumulative_ratings + new_rating["rating"]
         product.rating = product.cumulative_ratings / product.no_of_users_rated
         product.update()
-
         app.logger.info("Product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
     
