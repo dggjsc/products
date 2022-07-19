@@ -12,7 +12,7 @@ from unittest import TestCase
 # from unittest.mock import MagicMock, patch
 from service import app
 from service.models import Product
-from service.models import db
+from service.models import db, MIN_PRICE, MAX_PRICE
 from service.routes import init_db
 from service.utils import status
 from tests.factories import ProductFactory  # HTTP Status Codes
@@ -147,7 +147,6 @@ class TestYourResourceServer(TestCase):
         response = self.client.get(f"{BASE_URL}/{test_product.id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    # #####################################################################
     def test_get_product(self):
         """It should return a single product"""
         test_product = self._create_products(1)[0]
@@ -197,22 +196,25 @@ class TestYourResourceServer(TestCase):
                 product.cumulative_ratings += randint(1, 5)
             product.rating = product.cumulative_ratings
             product.rating = product.rating / product.no_of_users_rated
-            response = self.client.get(
-                f"{BASE_URL}/{product.id}"
-            )
+            response = self.client.get(f"{BASE_URL}/{product.id}")
             old_product = response.get_json()
             logging.debug(old_product)
             old_product["rating"] = product.rating
             old_product["cumulative_ratings"] = product.cumulative_ratings
             old_product["no_of_users_rated"] = product.no_of_users_rated
-            response = self.client.put(f"{BASE_URL}/{old_product['id']}", json=old_product)
+            response = self.client.put(
+                f"{BASE_URL}/{old_product['id']}", json=old_product
+            )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
         test_rating = products[0].rating
-        rating_products = [product for product in products if product.rating is not None and product.rating >= test_rating]
+        rating_products = [
+            product
+            for product in products
+            if product.rating is not None and product.rating >= test_rating
+        ]
         if test_rating is not None:
             response = self.client.get(
-                BASE_URL,
-                query_string=f"rating={str(test_rating)}"
+                BASE_URL, query_string=f"rating={str(test_rating)}"
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.get_json()
@@ -222,11 +224,10 @@ class TestYourResourceServer(TestCase):
         """It should Query Products by Price"""
         products = self._create_products(10)
         test_price = products[0].price
-        price_products = [product for product in products if product.price <= test_price]
-        response = self.client.get(
-            BASE_URL,
-            query_string=f"price={str(test_price)}"
-        )
+        price_products = [
+            product for product in products if product.price <= test_price
+        ]
+        response = self.client.get(BASE_URL, query_string=f"price={str(test_price)}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(price_products))
@@ -244,7 +245,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(len(data), len(test_products))
 
     def test_first_rating_product(self):
-        '''It updates the rating of the product'''
+        """It updates the rating of the product"""
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -252,10 +253,33 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_product["rating"], None)
         myJson = {}
         myJson["rating"] = 3
-        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
+        response = self.client.put(
+            f"{BASE_URL}/{new_product['id']}/rating", json=myJson
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_product = response.get_json()
         self.assertAlmostEqual(new_product["rating"], 3)
+
+    def test_update_price(self):
+        '''It should update the price of a product'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product price
+        new_product = {}
+        new_product["price"] = int(MAX_PRICE)
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_product = response.get_json()
+        self.assertAlmostEqual(updated_product["price"], float(MAX_PRICE))
+        new_product["price"] = float(MIN_PRICE)
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_product = response.get_json()
+        self.assertAlmostEqual(updated_product["price"], float(MIN_PRICE))
 
     ######################################################################
     #  T E S T   S A D   P A T H S
@@ -341,50 +365,36 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed_put(self):
-        """ It should Handle PUT request for /products with 405_METHOD_NOT_ALLOWED"""
-        resp = self.client.put('/products')
-        self.assertEqual(
-            resp.status_code,
-            status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        """It should Handle PUT request for /products with 405_METHOD_NOT_ALLOWED"""
+        resp = self.client.put("/products")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_method_not_allowed_get(self):
-        """ It should Handle GET request for /products with 405_METHOD_NOT_ALLOWED"""
-        resp = self.client.put('/products')
-        self.assertEqual(
-            resp.status_code,
-            status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        """It should Handle GET request for /products with 405_METHOD_NOT_ALLOWED"""
+        resp = self.client.put("/products")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_method_not_allowed_delete(self):
-        """ It should Handle DELETE request for /products with 405_METHOD_NOT_ALLOWED"""
-        resp = self.client.put('/products')
-        self.assertEqual(
-            resp.status_code,
-            status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        """It should Handle DELETE request for /products with 405_METHOD_NOT_ALLOWED"""
+        resp = self.client.put("/products")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_query_product_list_by_bad_rating(self):
         """It should return a 406_NOT_ACCEPTABLE error if query a bad rating"""
-        response = self.client.get(
-            BASE_URL,
-            query_string="rating=9.2"
-        )
+        response = self.client.get(BASE_URL, query_string="rating=9.2")
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
-        response = self.client.get(
-            BASE_URL,
-            query_string="rating=good"
-        )
+        response = self.client.get(BASE_URL, query_string="rating=good")
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_query_product_list_by_category(self):
         """It should Query Products by Category"""
         products = self._create_products(10)
         test_category = products[0].category
-        category_products = [product for product in products if product.category == test_category]
+        category_products = [
+            product for product in products if product.category == test_category
+        ]
         response = self.client.get(
-            BASE_URL,
-            query_string=f"category={quote_plus(test_category)}"
+            BASE_URL, query_string=f"category={quote_plus(test_category)}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
@@ -395,19 +405,13 @@ class TestYourResourceServer(TestCase):
 
     def test_query_product_list_by_bad_price(self):
         """It should return a 406_NOT_ACCEPTABLE error if query a bad price"""
-        response = self.client.get(
-            BASE_URL,
-            query_string="price=expensive"
-        )
+        response = self.client.get(BASE_URL, query_string="price=expensive")
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
-        response = self.client.get(
-            BASE_URL,
-            query_string="price=-23"
-        )
+        response = self.client.get(BASE_URL, query_string="price=-23")
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_user_sends_a_correct_rating(self):
-        '''It should return a 200_HTTP_OK Request that the rating has been processed. User sees the updating of rating'''
+        """It should return a 200_HTTP_OK Request that the rating has been processed. User sees the updating of rating"""
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -416,16 +420,20 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_product)
         myJson = {}
         myJson["rating"] = 2
-        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
+        response = self.client.put(
+            f"{BASE_URL}/{new_product['id']}/rating", json=myJson
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         myJson["rating"] = 4
-        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
+        response = self.client.put(
+            f"{BASE_URL}/{new_product['id']}/rating", json=myJson
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
         self.assertAlmostEqual(updated_product["rating"], 3)
 
     def test_user_sends_string_rating(self):
-        '''User sends a string datatype for rating. It should return Error Code : 406'''
+        """User sends a string datatype for rating. It should return Error Code : 406"""
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -433,11 +441,13 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_product)
         myJson = {}
         myJson["rating"] = "FalseRating"
-        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
+        response = self.client.put(
+            f"{BASE_URL}/{new_product['id']}/rating", json=myJson
+        )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_user_sends_out_of_bounds_rating(self):
-        '''User sends a negative_rating/out_of_bounds'''
+        """User sends a negative_rating/out_of_bounds"""
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -445,11 +455,13 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_product)
         myJson = {}
         myJson["rating"] = -1
-        response = self.client.put(f"{BASE_URL}/{new_product['id']}/rating", json=myJson)
+        response = self.client.put(
+            f"{BASE_URL}/{new_product['id']}/rating", json=myJson
+        )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_user_sends_rating_of_invalid_product_id(self):
-        '''User sends rating to invalid product id'''
+        """User sends rating to invalid product id"""
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -461,10 +473,46 @@ class TestYourResourceServer(TestCase):
         response = self.client.put(f"{BASE_URL}/{wrong_id}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
     def test_user_sends_incorrect_availability_param(self):
         '''The user sends an incorrect availability Parameter'''
         response = self.client.get(
             BASE_URL,
             query_string="available=IncorrectString"
         )
+
+    def test_update_price_bad_id(self):
+        '''It should return 404 for bad id in update price'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product price
+        new_product = {}
+        new_product["price"] = MAX_PRICE
+        response = self.client.put(f"{BASE_URL}/{id+1}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_price_bad_price(self):
+        '''It should return 406 for bad price in update price'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product price
+        new_product = {}
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["price"] = None
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["price"] = MAX_PRICE + 1
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["price"] = str(MAX_PRICE)
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)

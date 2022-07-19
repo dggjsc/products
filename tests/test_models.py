@@ -179,6 +179,28 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(products[0].id, original_id)
         self.assertEqual(products[0].category, "k9")
 
+    def test_add_duplicate_name(self):
+        """It should not add a Product with an existing name"""
+        product = Product(
+            name="shirt",
+            category="women's clothing",
+            available=True,
+            price=15.0,
+            description="Relaxed Fit",
+        )
+        product.id = None
+        product.create()
+        product = Product()
+        duplicate_data = {
+            "name": "shirt",
+            "category": "women's clothing",
+            "available": True,
+            "price": 12.3,
+            "description": "popular",
+        }
+        product.deserialize(duplicate_data)
+        self.assertRaises(DataValidationError, product.create)
+
     def test_update_no_id(self):
         """It should not Update a Product with no id"""
         product = ProductFactory()
@@ -295,7 +317,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_bad_cumulative_rating(self):
-        '''It should not deserialize a bad cumulative rating attribute'''
+        """It should not deserialize a bad cumulative rating attribute"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["cumulative_ratings"] = "string"
@@ -303,7 +325,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_neg_cumulative_rating(self):
-        '''It should not deserialize a negative a cumulative data'''
+        """It should not deserialize a negative a cumulative data"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["cumulative_ratings"] = -1
@@ -311,7 +333,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_bad_no_of_users(self):
-        '''It should not deserialize a bad no of users who rated a product'''
+        """It should not deserialize a bad no of users who rated a product"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["no_of_users_rated"] = "string"
@@ -319,7 +341,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_neg_no_of_users(self):
-        '''It should not deserialize a negative no of users'''
+        """It should not deserialize a negative no of users"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["no_of_users_rated"] = -1
@@ -373,7 +395,13 @@ class TestProduct(unittest.TestCase):
             product.rating = product.cumulative_ratings
             product.rating = product.rating / product.no_of_users_rated
         rating = products[0].rating
-        count = len([product for product in products if product.rating is not None and product.rating >= rating])
+        count = len(
+            [
+                product
+                for product in products
+                if product.rating is not None and product.rating >= rating
+            ]
+        )
         myCount = 0
         found = []
         if rating is not None:
