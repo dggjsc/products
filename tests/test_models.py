@@ -171,6 +171,23 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(products[0].id, original_id)
         self.assertEqual(products[0].category, "k9")
 
+    def test_add_duplicate_name(self):
+        """It should not add a Product with an existing name"""
+        product = Product(
+            name="shirt",
+            category="women's clothing",
+            available=True,
+            price=15.0,
+            description="Relaxed Fit",
+            rating=1,
+        )
+        product.id = None
+        product.create()
+        product = Product()
+        duplicate_data = {"name":"shirt", "category":"women's clothing", "available":True, "price":12.3, "description":"popular", "rating":2}
+        product.deserialize(duplicate_data)
+        self.assertRaises(DataValidationError, product.create)
+
     def test_update_no_id(self):
         """It should not Update a Product with no id"""
         product = ProductFactory()
@@ -321,7 +338,8 @@ class TestProduct(unittest.TestCase):
         for product in products:
             product.create()
         rating = products[0].rating
-        count = len([product for product in products if product.rating >= rating])
+        count = len(
+            [product for product in products if product.rating >= rating])
         found = Product.find_by_rating(rating)
         self.assertEqual(found.count(), count)
         for product in found:
@@ -333,7 +351,8 @@ class TestProduct(unittest.TestCase):
         for product in products:
             product.create()
         category = products[0].category
-        count = len([product for product in products if product.category == category])
+        count = len(
+            [product for product in products if product.category == category])
         found = product.find_by_category(category)
         self.assertEqual(found.count(), count)
         for product in found:
@@ -345,7 +364,8 @@ class TestProduct(unittest.TestCase):
         for product in products:
             product.create()
         price = products[0].price
-        count = len([product for product in products if product.price <= price])
+        count = len(
+            [product for product in products if product.price <= price])
         found = Product.find_by_price(price)
         self.assertEqual(found.count(), count)
         for product in found:
