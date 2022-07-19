@@ -473,13 +473,13 @@ class TestYourResourceServer(TestCase):
         response = self.client.put(f"{BASE_URL}/{wrong_id}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_user_sends_incorrect_availability_param(self):
         '''The user sends an incorrect availability Parameter'''
         response = self.client.get(
             BASE_URL,
             query_string="available=IncorrectString"
         )
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_update_price_bad_id(self):
         '''It should return 404 for bad id in update price'''
