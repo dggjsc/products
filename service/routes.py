@@ -39,19 +39,16 @@ def index():
 ######################################################################
 @app.route("/products", methods=["GET"])
 def list_products():
-    """Returns all of the Products"""
-    app.logger.info("Request for Product list")
+    app.logger.info("Request for Product List")
     products = []
-    rating = request.args.get("rating")
-
+    results = []
+    rating_str = request.args.get("rating")
     category = request.args.get("category")
     price = request.args.get("price")
-    if rating:
-        if rating not in ["1", "2", "3", "4", "5"]:
-            return "", status.HTTP_406_NOT_ACCEPTABLE
-        products = Product.find_by_rating(int(rating))
-    elif category:
+    rating = 0
+    if category:
         products = Product.find_by_category(category)
+        results = [product.serialize() for product in products]
     elif price:
         try:
             price = float(price)
@@ -60,13 +57,21 @@ def list_products():
         if price < 0:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_price(price)
+        results = [product.serialize() for product in products]
+        results.sort(key=lambda n: n["price"], reverse=True)
+    elif rating_str:
+        try:
+            rating = float(rating_str)
+        except ValueError:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        if rating <= 0 or rating > 5:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        products = Product.find_by_rating(rating)
+        results = [product.serialize() for product in products if product.rating is not None]
+        results.sort(key=lambda n: n["rating"], reverse=True)
     else:
         products = Product.all()
-    results = [product.serialize() for product in products]
-    if rating:
-        results.sort(key=lambda n: n["rating"], reverse=True)
-    elif price:
-        results.sort(key=lambda n: n["price"], reverse=True)
+        results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK
 
@@ -154,6 +159,52 @@ def update_products(product_id):
     product.update()
 
     app.logger.info("Product with ID [%s] updated.", product.id)
+    return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# UPDATE THE RATING OF A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>/rating", methods=["PUT"])
+def update_rating_of_product(product_id):
+    """
+    Updates the rating of a product on the basis of feedback provided.
+    Args:
+        product_id (_type_): _description_
+    """
+    app.logger.info("Request to update the rating of the product with id: %s", product_id)
+    check_content_type("application/json")
+    product = Product.find(product_id)
+    if not product:
+        app.logger.info("Inside this condition")
+        abort(
+            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
+        )
+    new_rating = request.get_json()
+    if not isinstance(new_rating["rating"], int):
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Rating should be of integer datatype"
+        )
+    if new_rating["rating"] <= 0 or new_rating["rating"] > 5:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="The ratings can be from [1,5]"
+        )
+    if new_rating["rating"] is not None:
+        product.id = product_id
+        myJson = product.serialize()
+        product.deserialize(myJson)
+        product.id = product_id
+        if product.no_of_users_rated is None or product.no_of_users_rated == 0:
+            product.no_of_users_rated = 1
+        else:
+            product.no_of_users_rated = product.no_of_users_rated + 1
+        if product.cumulative_ratings is None or product.cumulative_ratings == 0:
+            product.cumulative_ratings = new_rating["rating"]
+        else:
+            product.cumulative_ratings = product.cumulative_ratings + new_rating["rating"]
+        product.rating = product.cumulative_ratings / product.no_of_users_rated
+        product.update()
+        app.logger.info("Product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
 

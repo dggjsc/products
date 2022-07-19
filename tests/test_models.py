@@ -4,11 +4,15 @@ Test cases for Product Model
 """
 # from itertools import product
 # from math import prod
+# from itertools import product
 import os
 import logging
 import unittest
 
+from random import randint
+
 # from sqlalchemy import true
+# from sqlalchemy import null
 from werkzeug.exceptions import NotFound
 from service.models import Product, DataValidationError, db
 from service import app
@@ -61,7 +65,6 @@ class TestProduct(unittest.TestCase):
             available=True,
             description="relaxed",
             price=20.0,
-            rating=3,
         )
         self.assertEqual(str(product), "<Product 'shirt' id=[None]>")
         self.assertTrue(product is not None)
@@ -71,7 +74,9 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.available, True)
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
-        self.assertEqual(product.rating, 3)
+        self.assertEqual(product.rating, None)
+        self.assertEqual(product.cumulative_ratings, None)
+        self.assertEqual(product.no_of_users_rated, None)
 
     def test_delete_a_product(self):
         """It should Delete a Product"""
@@ -98,6 +103,8 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found_product.price, product.price)
         self.assertEqual(found_product.available, product.available)
         self.assertEqual(found_product.rating, product.rating)
+        self.assertEqual(found_product.cumulative_ratings, product.cumulative_ratings)
+        self.assertEqual(found_product.no_of_users_rated, product.no_of_users_rated)
 
     def test_list_all_products(self):
         """It should List all Products in the database"""
@@ -128,7 +135,9 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, products[1].description)
         self.assertEqual(product.price, products[1].price)
         self.assertEqual(product.available, products[1].available)
-        self.assertEqual(product.rating, products[1].rating)
+        self.assertAlmostEqual(product.rating, products[1].rating)
+        self.assertEqual(product.cumulative_ratings, products[1].cumulative_ratings)
+        self.assertEqual(product.no_of_users_rated, products[1].no_of_users_rated)
 
     def test_add_a_product(self):
         """It should Create a product and add it to the database"""
@@ -140,7 +149,6 @@ class TestProduct(unittest.TestCase):
             available=True,
             price=15.0,
             description="Relaxed Fit",
-            rating=1,
         )
         self.assertTrue(product is not None)
         self.assertEqual(product.id, None)
@@ -214,6 +222,10 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["available"], product.available)
         self.assertIn("rating", data)
         self.assertEqual(data["rating"], product.rating)
+        self.assertIn("cumulative_ratings", data)
+        self.assertEqual(data["cumulative_ratings"], product.cumulative_ratings)
+        self.assertIn("no_of_users_rated", data)
+        self.assertEqual(data["no_of_users_rated"], product.no_of_users_rated)
 
     def test_deserialize_a_product(self):
         """It should de-serialize a Product"""
@@ -228,6 +240,8 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.price, data["price"])
         self.assertEqual(product.available, data["available"])
         self.assertEqual(product.rating, data["rating"])
+        self.assertEqual(product.cumulative_ratings, data["cumulative_ratings"])
+        self.assertEqual(product.no_of_users_rated, data["no_of_users_rated"])
 
     def test_deserialize_missing_data(self):
         """It should not deserialize a Product with missing data"""
@@ -297,6 +311,38 @@ class TestProduct(unittest.TestCase):
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
 
+    def test_deserialize_bad_cumulative_rating(self):
+        '''It should not deserialize a bad cumulative rating attribute'''
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["cumulative_ratings"] = "string"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
+    def test_deserialize_neg_cumulative_rating(self):
+        '''It should not deserialize a negative a cumulative data'''
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["cumulative_ratings"] = -1
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
+    def test_deserialize_bad_no_of_users(self):
+        '''It should not deserialize a bad no of users who rated a product'''
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["no_of_users_rated"] = "string"
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
+    def test_deserialize_neg_no_of_users(self):
+        '''It should not deserialize a negative no of users'''
+        test_product = ProductFactory()
+        data = test_product.serialize()
+        data["no_of_users_rated"] = -1
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
     def test_find_or_404_found(self):
         """It should Find or return 404 not found"""
         products = ProductFactory.create_batch(3)
@@ -337,11 +383,27 @@ class TestProduct(unittest.TestCase):
         products = ProductFactory.create_batch(10)
         for product in products:
             product.create()
+            product.no_of_users_rated = randint(1, 10)
+            product.cumulative_ratings = 0
+            for x in range(product.no_of_users_rated):
+                product.cumulative_ratings += randint(1, 5)
+            product.rating = product.cumulative_ratings
+            product.rating = product.rating / product.no_of_users_rated
         rating = products[0].rating
+<<<<<<< HEAD
         count = len(
             [product for product in products if product.rating >= rating])
         found = Product.find_by_rating(rating)
         self.assertEqual(found.count(), count)
+=======
+        count = len([product for product in products if product.rating is not None and product.rating >= rating])
+        myCount = 0
+        found = []
+        if rating is not None:
+            found = Product.find_by_rating(rating)
+            myCount = found.count()
+        self.assertEqual(myCount, count)
+>>>>>>> master
         for product in found:
             self.assertGreaterEqual(product.rating, rating)
 
