@@ -11,7 +11,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # from tomlkit import boolean
 # from sqlalchemy import null
-
+from . import app
 # from tomlkit import integer
 MIN_PRICE = 10.00
 MAX_PRICE = 100.00
@@ -177,9 +177,12 @@ class Product(db.Model):
             self.category = data["category"]
             self.check_price(data["price"])
             self.check_available(data["available"])
-            self.check_rating(data["rating"])
-            self.check_cumulative_ratings(data["cumulative_ratings"])
-            self.check_no_of_users_rated(data["no_of_users_rated"])
+            if "rating" in data:
+                self.check_rating(data["rating"])
+            if "cumulative_ratings" in data:
+                self.check_cumulative_ratings(data["cumulative_ratings"])
+            if "no_of_users_rated" in data:    
+                self.check_no_of_users_rated(data["no_of_users_rated"])
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
@@ -290,3 +293,13 @@ class Product(db.Model):
         """
         logger.info("Processing price query for %s ...", price)
         return cls.query.filter(cls.price <= price)
+
+    @classmethod
+    def find_by_availability(cls) -> list:
+        """Returns all the products that are currently available
+
+        Returns:
+            list: returns the list of currently available products
+        """
+        logger.info("Processing availability query")
+        return cls.query.filter(cls.available == True)

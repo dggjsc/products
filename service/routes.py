@@ -45,6 +45,7 @@ def list_products():
     rating_str = request.args.get("rating")
     category = request.args.get("category")
     price = request.args.get("price")
+    available = request.args.get("available")
     rating = 0
     if category:
         products = Product.find_by_category(category)
@@ -69,6 +70,11 @@ def list_products():
         products = Product.find_by_rating(rating)
         results = [product.serialize() for product in products if product.rating is not None]
         results.sort(key=lambda n: n["rating"], reverse=True)
+    elif available:
+        if available != "True":
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        products = Product.find_by_availability()
+        results = [product.serialize() for product in products]
     else:
         products = Product.all()
         results = [product.serialize() for product in products]
@@ -110,6 +116,7 @@ def create_products():
     check_content_type("application/json")
     product = Product()
     product.deserialize(request.get_json())
+    app.logger.info("Here Deserialization done")
     product.create()
     message = product.serialize()
     location_url = url_for("get_products", product_id=product.id, _external=True)

@@ -406,3 +406,14 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertGreaterEqual(price, product.price)
+
+    def test_find_by_availability(self):
+        '''It should return the products currently available'''
+        products = ProductFactory.create_batch(10)
+        for product in products:
+            product.create()
+        count = len([product for product in products if product.available==True])
+        found = Product.find_by_availability()
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertTrue(product.available)
