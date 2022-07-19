@@ -187,12 +187,17 @@ class TestProduct(unittest.TestCase):
             available=True,
             price=15.0,
             description="Relaxed Fit",
-            rating=1,
         )
         product.id = None
         product.create()
         product = Product()
-        duplicate_data = {"name":"shirt", "category":"women's clothing", "available":True, "price":12.3, "description":"popular", "rating":2}
+        duplicate_data = {
+            "name": "shirt",
+            "category": "women's clothing",
+            "available": True,
+            "price": 12.3,
+            "description": "popular",
+        }
         product.deserialize(duplicate_data)
         self.assertRaises(DataValidationError, product.create)
 
@@ -312,7 +317,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_bad_cumulative_rating(self):
-        '''It should not deserialize a bad cumulative rating attribute'''
+        """It should not deserialize a bad cumulative rating attribute"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["cumulative_ratings"] = "string"
@@ -320,7 +325,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_neg_cumulative_rating(self):
-        '''It should not deserialize a negative a cumulative data'''
+        """It should not deserialize a negative a cumulative data"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["cumulative_ratings"] = -1
@@ -328,7 +333,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_bad_no_of_users(self):
-        '''It should not deserialize a bad no of users who rated a product'''
+        """It should not deserialize a bad no of users who rated a product"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["no_of_users_rated"] = "string"
@@ -336,7 +341,7 @@ class TestProduct(unittest.TestCase):
         self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_neg_no_of_users(self):
-        '''It should not deserialize a negative no of users'''
+        """It should not deserialize a negative no of users"""
         test_product = ProductFactory()
         data = test_product.serialize()
         data["no_of_users_rated"] = -1
@@ -390,20 +395,19 @@ class TestProduct(unittest.TestCase):
             product.rating = product.cumulative_ratings
             product.rating = product.rating / product.no_of_users_rated
         rating = products[0].rating
-<<<<<<< HEAD
         count = len(
-            [product for product in products if product.rating >= rating])
-        found = Product.find_by_rating(rating)
-        self.assertEqual(found.count(), count)
-=======
-        count = len([product for product in products if product.rating is not None and product.rating >= rating])
+            [
+                product
+                for product in products
+                if product.rating is not None and product.rating >= rating
+            ]
+        )
         myCount = 0
         found = []
         if rating is not None:
             found = Product.find_by_rating(rating)
             myCount = found.count()
         self.assertEqual(myCount, count)
->>>>>>> master
         for product in found:
             self.assertGreaterEqual(product.rating, rating)
 
@@ -413,8 +417,7 @@ class TestProduct(unittest.TestCase):
         for product in products:
             product.create()
         category = products[0].category
-        count = len(
-            [product for product in products if product.category == category])
+        count = len([product for product in products if product.category == category])
         found = product.find_by_category(category)
         self.assertEqual(found.count(), count)
         for product in found:
@@ -426,8 +429,7 @@ class TestProduct(unittest.TestCase):
         for product in products:
             product.create()
         price = products[0].price
-        count = len(
-            [product for product in products if product.price <= price])
+        count = len([product for product in products if product.price <= price])
         found = Product.find_by_price(price)
         self.assertEqual(found.count(), count)
         for product in found:

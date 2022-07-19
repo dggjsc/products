@@ -3,7 +3,7 @@ Test Factory to make fake objects for testing
 """
 import factory
 import string
-from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyFloat, FuzzyText
+from factory.fuzzy import FuzzyChoice, FuzzyFloat, FuzzyText
 from service.models import Product, MAX_PRICE, MIN_PRICE
 
 

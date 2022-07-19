@@ -9,7 +9,6 @@ import logging
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import exc
 
 # from tomlkit import boolean
 # from sqlalchemy import null
@@ -74,7 +73,7 @@ class Product(db.Model):
             self.id = None  # id must be none to generate next primary key
             db.session.add(self)
             db.session.commit()
-        except:
+        except ValueError:
             db.session.rollback()
             raise DataValidationError(f"Error: name {self.name} already exists!")
 
@@ -112,12 +111,10 @@ class Product(db.Model):
             if price >= MIN_PRICE and price <= MAX_PRICE:
                 self.price = price
             else:
-                raise DataValidationError(
-                    "Invalid range for [price]: " + str(price)
-                )
+                raise DataValidationError("Invalid range for [price]: " + str(price))
         else:
             raise DataValidationError(
-               "Invalid type for float [price]: " + str(type(price))
+                "Invalid type for float [price]: " + str(type(price))
             )
 
     def check_available(self, available):
@@ -125,8 +122,7 @@ class Product(db.Model):
             self.available = available
         else:
             raise DataValidationError(
-                "Invalid type for boolean [available]: "
-                + str(type(available))
+                "Invalid type for boolean [available]: " + str(type(available))
             )
 
     def check_rating(self, rating):
@@ -150,11 +146,13 @@ class Product(db.Model):
                     self.cumulative_ratings = cumulative_ratings
                 else:
                     raise DataValidationError(
-                        "Invalid Range for [cumulative_ratings]: " + str(cumulative_ratings)
+                        "Invalid Range for [cumulative_ratings]: "
+                        + str(cumulative_ratings)
                     )
             else:
                 raise DataValidationError(
-                    "Invalid Type for [cumulative_ratings]: " + str(type(cumulative_ratings))
+                    "Invalid Type for [cumulative_ratings]: "
+                    + str(type(cumulative_ratings))
                 )
 
     def check_no_of_users_rated(self, no_of_users_rated):
@@ -164,11 +162,13 @@ class Product(db.Model):
                     self.no_of_users_rated = no_of_users_rated
                 else:
                     raise DataValidationError(
-                        "Invalid Range for [no_of_users_rated]: " + str(no_of_users_rated)
+                        "Invalid Range for [no_of_users_rated]: "
+                        + str(no_of_users_rated)
                     )
             else:
                 raise DataValidationError(
-                    "Invalid Type for [no_of_users_rated]: " + str(type(no_of_users_rated))
+                    "Invalid Type for [no_of_users_rated]: "
+                    + str(type(no_of_users_rated))
                 )
 
     def deserialize(self, data: dict):
@@ -184,14 +184,16 @@ class Product(db.Model):
             self.category = data["category"]
             self.check_price(data["price"])
             self.check_available(data["available"])
-            self.check_rating(data["rating"])
-            self.check_cumulative_ratings(data["cumulative_ratings"])
-            self.check_no_of_users_rated(data["no_of_users_rated"])
+            if "rating" in data:
+                self.check_rating(data["rating"])
+            if "cumulative_ratings" in data:
+                self.check_cumulative_ratings(data["cumulative_ratings"])
+            if "no_of_users_rated" in data:
+                self.check_no_of_users_rated(data["no_of_users_rated"])
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError(
-                "Invalid product: missing " + error.args[0])
+            raise DataValidationError("Invalid product: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Product: body of request contained bad or no data - "

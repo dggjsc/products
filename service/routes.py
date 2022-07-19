@@ -67,7 +67,9 @@ def list_products():
         if rating <= 0 or rating > 5:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_rating(rating)
-        results = [product.serialize() for product in products if product.rating is not None]
+        results = [
+            product.serialize() for product in products if product.rating is not None
+        ]
         results.sort(key=lambda n: n["rating"], reverse=True)
     else:
         products = Product.all()
@@ -172,18 +174,22 @@ def update_rating_of_product(product_id):
     Args:
         product_id (_type_): _description_
     """
-    app.logger.info("Request to update the rating of the product with id: %s", product_id)
+    app.logger.info(
+        "Request to update the rating of the product with id: %s", product_id
+    )
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
         app.logger.info("Inside this condition")
         abort(
-            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
+            status.HTTP_404_NOT_FOUND,
+            description=f"Product with id '{product_id}' was not found.",
         )
     new_rating = request.get_json()
     if not isinstance(new_rating["rating"], int):
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="Rating should be of integer datatype"
+            status.HTTP_406_NOT_ACCEPTABLE,
+            description="Rating should be of integer datatype",
         )
     if new_rating["rating"] <= 0 or new_rating["rating"] > 5:
         abort(
@@ -201,7 +207,9 @@ def update_rating_of_product(product_id):
         if product.cumulative_ratings is None or product.cumulative_ratings == 0:
             product.cumulative_ratings = new_rating["rating"]
         else:
-            product.cumulative_ratings = product.cumulative_ratings + new_rating["rating"]
+            product.cumulative_ratings = (
+                product.cumulative_ratings + new_rating["rating"]
+            )
         product.rating = product.cumulative_ratings / product.no_of_users_rated
         product.update()
         app.logger.info("Product with ID [%s] updated.", product.id)
@@ -229,6 +237,8 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         "Content-Type must be {}".format(media_type),
     )
+
+
 # @app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
 # def method_not_supported(error):
 #     """Handles unsupported HTTP methods with 405_METHOD_NOT_ALLOWED"""
