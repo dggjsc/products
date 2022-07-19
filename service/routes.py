@@ -37,6 +37,33 @@ def index():
 ######################################################################
 # LIST ALL PRODUCTS
 ######################################################################
+def check_category(category):
+    products = Product.find_by_category(category)
+    results = [product.serialize() for product in products]
+    app.logger.info("Returning %d products", len(results))
+    return results
+
+
+def check_price(price):
+    price = float(price)
+    if price < 0:
+        raise ValueError
+    products = Product.find_by_price(price)
+    results = [product.serialize() for product in products]
+    results.sort(key=lambda n: n["price"], reverse=True)
+    return results
+
+
+def check_rating(rating_str):
+    rating = float(rating_str)
+    if rating <= 0 or rating > 5:
+        raise ValueError
+    products = Product.find_by_rating(rating)
+    results = [product.serialize() for product in products if product.rating is not None]
+    results.sort(key=lambda n: n["rating"], reverse=True)
+    return results
+
+
 @app.route("/products", methods=["GET"])
 def list_products():
     app.logger.info("Request for Product List")
@@ -46,30 +73,18 @@ def list_products():
     category = request.args.get("category")
     price = request.args.get("price")
     available = request.args.get("available")
-    rating = 0
     if category:
-        products = Product.find_by_category(category)
-        results = [product.serialize() for product in products]
+        results = check_category(category)
     elif price:
         try:
-            price = float(price)
+            results = check_price(price)
         except ValueError:
             return "", status.HTTP_406_NOT_ACCEPTABLE
-        if price < 0:
-            return "", status.HTTP_406_NOT_ACCEPTABLE
-        products = Product.find_by_price(price)
-        results = [product.serialize() for product in products]
-        results.sort(key=lambda n: n["price"], reverse=True)
     elif rating_str:
         try:
-            rating = float(rating_str)
+            results = check_rating(rating_str)
         except ValueError:
             return "", status.HTTP_406_NOT_ACCEPTABLE
-        if rating <= 0 or rating > 5:
-            return "", status.HTTP_406_NOT_ACCEPTABLE
-        products = Product.find_by_rating(rating)
-        results = [product.serialize() for product in products if product.rating is not None]
-        results.sort(key=lambda n: n["rating"], reverse=True)
     elif available:
         if available != "True":
             return "", status.HTTP_406_NOT_ACCEPTABLE

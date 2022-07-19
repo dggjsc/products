@@ -234,10 +234,10 @@ class TestYourResourceServer(TestCase):
     def test_query_list_by_availability(self):
         '''It should Query Products by Availability'''
         products = self._create_products(10)
-        test_products = [product for product in products if product.available==True]
+        test_products = [product for product in products if product.available is True]
         response = self.client.get(
             BASE_URL,
-            query_string=f"available=True"
+            query_string="available=True"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
@@ -463,10 +463,8 @@ class TestYourResourceServer(TestCase):
 
     def test_user_sends_incorrect_availability_param(self):
         '''The user sends an incorrect availability Parameter'''
-        products = self._create_products(10)
         response = self.client.get(
             BASE_URL,
-            query_string = f"available=IncorrectString"
+            query_string="available=IncorrectString"
         )
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
-
