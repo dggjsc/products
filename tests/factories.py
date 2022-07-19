@@ -2,7 +2,8 @@
 Test Factory to make fake objects for testing
 """
 import factory
-from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyFloat
+import string
+from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyFloat, FuzzyText
 from service.models import Product, MAX_PRICE, MIN_PRICE
 
 
@@ -15,8 +16,8 @@ class ProductFactory(factory.Factory):
         model = Product
 
     id = factory.Sequence(lambda n: n)
-    name = FuzzyChoice(choices=["shirt", "sweater", "pants", "lounge_wear"])
-    description = FuzzyChoice(choices=["unavailable", "Relaxed Fit", "Slim Fit"])
+    name = FuzzyText(length=12, chars=string.ascii_letters)
+    description = FuzzyText(length=12, chars=string.ascii_letters)
     category = FuzzyChoice(choices=["men's clothing", "women's clothing"])
     price = FuzzyFloat(MIN_PRICE, MAX_PRICE)
     available = FuzzyChoice(choices=[True, False])
