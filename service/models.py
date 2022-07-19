@@ -9,6 +9,7 @@ import logging
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+# from tomlkit import boolean
 # from sqlalchemy import null
 
 # from tomlkit import integer
@@ -99,6 +100,70 @@ class Product(db.Model):
             "no_of_users_rated": self.no_of_users_rated,
         }
 
+    def check_price(self, price):
+        if isinstance(price, float):
+            if price >= MIN_PRICE and price <= MAX_PRICE:
+                self.price = price
+            else:
+                raise DataValidationError(
+                    "Invalid range for [price]: " + str(price)
+                )
+        else:
+            raise DataValidationError(
+               "Invalid type for float [price]: " + str(type(price))
+            )
+
+    def check_available(self, available):
+        if isinstance(available, bool):
+            self.available = available
+        else:
+            raise DataValidationError(
+                "Invalid type for boolean [available]: "
+                + str(type(available))
+            )
+
+    def check_rating(self, rating):
+        if rating is not None:
+            if isinstance(rating, float):
+                if rating >= MIN_RATE and rating <= MAX_RATE:
+                    self.rating = rating
+                else:
+                    raise DataValidationError(
+                        "Invalid range for [rating]: " + str(rating)
+                    )
+            else:
+                raise DataValidationError(
+                    "Invalid type for [rating]: " + str(type(rating))
+                )
+
+    def check_cumulative_ratings(self, cumulative_ratings):
+        if cumulative_ratings is not None:
+            if isinstance(cumulative_ratings, int):
+                if cumulative_ratings >= 0:
+                    self.cumulative_ratings = cumulative_ratings
+                else:
+                    raise DataValidationError(
+                        "Invalid Range for [cumulative_ratings]: " + str(cumulative_ratings)
+                    )
+            else:
+                raise DataValidationError(
+                    "Invalid Type for [cumulative_ratings]: " + str(type(cumulative_ratings))
+                )
+
+    def check_no_of_users_rated(self, no_of_users_rated):
+        if no_of_users_rated is not None:
+            if isinstance(no_of_users_rated, int):
+                if no_of_users_rated >= 0:
+                    self.no_of_users_rated = no_of_users_rated
+                else:
+                    raise DataValidationError(
+                        "Invalid Range for [no_of_users_rated]: " + str(no_of_users_rated)
+                    )
+            else:
+                raise DataValidationError(
+                    "Invalid Type for [no_of_users_rated]: " + str(type(no_of_users_rated))
+                )
+
     def deserialize(self, data: dict):
         """
         Deserializes a product from a dictionary
@@ -110,60 +175,11 @@ class Product(db.Model):
             self.name = data["name"]
             self.description = data["description"]
             self.category = data["category"]
-            if isinstance(data["price"], float):
-                if data["price"] >= MIN_PRICE and data["price"] <= MAX_PRICE:
-                    self.price = data["price"]
-                else:
-                    raise DataValidationError(
-                        "Invalid range for [price]: " + str(data["price"])
-                    )
-            else:
-                raise DataValidationError(
-                    "Invalid type for float [price]: " + str(type(data["price"]))
-                )
-            if isinstance(data["available"], bool):
-                self.available = data["available"]
-            else:
-                raise DataValidationError(
-                    "Invalid type for boolean [available]: "
-                    + str(type(data["available"]))
-                )
-            if data["rating"] is not None:
-                if isinstance(data["rating"], float):
-                    if data["rating"] >= MIN_RATE and data["rating"] <= MAX_RATE:
-                        self.rating = data["rating"]
-                    else:
-                        raise DataValidationError(
-                            "Invalid range for [rating]: " + str(data["rating"])
-                        )
-                else:
-                    raise DataValidationError(
-                        "Invalid type for [rating]: " + str(type(data["rating"]))
-                    )
-            if data["cumulative_ratings"] is not None:
-                if isinstance(data["cumulative_ratings"], int):
-                    if data["cumulative_ratings"] >= 0:
-                        self.cumulative_ratings = data["cumulative_ratings"]
-                    else:
-                        raise DataValidationError(
-                            "Invalid Range for [cumulative_ratings]: " + str(data["cumulative_ratings"])
-                        )
-                else:
-                    raise DataValidationError(
-                        "Invalid Type for [cumulative_ratings]: " + str(type(data["cumulative_ratings"]))
-                    )
-            if data["no_of_users_rated"] is not None:
-                if isinstance(data["no_of_users_rated"], int):
-                    if data["no_of_users_rated"] >= 0:
-                        self.no_of_users_rated = data["no_of_users_rated"]
-                    else:
-                        raise DataValidationError(
-                            "Invalid Range for [no_of_users_rated]: " + str(data["no_of_users_rated"])
-                        )
-                else:
-                    raise DataValidationError(
-                        "Invalid Type for [no_of_users_rated]: " + str(type(data["no_of_users_rated"]))
-                    )
+            self.check_price(data["price"])
+            self.check_available(data["available"])
+            self.check_rating(data["rating"])
+            self.check_cumulative_ratings(data["cumulative_ratings"])
+            self.check_no_of_users_rated(data["no_of_users_rated"])
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:

@@ -39,26 +39,16 @@ def index():
 ######################################################################
 @app.route("/products", methods=["GET"])
 def list_products():
-    """Returns all of the Products"""
-    app.logger.info("Request for Product list")
+    app.logger.info("Request for Product List")
     products = []
+    results = []
     rating_str = request.args.get("rating")
-    rating = 0.0
-    app.logger.info("Rating_String : %s", rating_str)
     category = request.args.get("category")
     price = request.args.get("price")
-    try:
-        if rating_str is not None:
-            rating = float(rating_str)
-            app.logger.info("Valid Input : %s", str(rating))
-    except ValueError:
-        return "", status.HTTP_406_NOT_ACCEPTABLE
-    if rating_str is not None:
-        if rating <= 0 or rating > 5:
-            return "", status.HTTP_406_NOT_ACCEPTABLE
-        products = Product.find_by_rating(rating)
-    elif category:
+    rating = 0
+    if category:
         products = Product.find_by_category(category)
+        results = [product.serialize() for product in products]
     elif price:
         try:
             price = float(price)
@@ -67,14 +57,21 @@ def list_products():
         if price < 0:
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_price(price)
-    else:
-        products = Product.all()
-    results = [product.serialize() for product in products]
-    if rating:
+        results = [product.serialize() for product in products]
+        results.sort(key=lambda n: n["price"], reverse=True)
+    elif rating_str:
+        try:
+            rating = float(rating_str)
+        except ValueError:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        if rating <= 0 or rating > 5:
+            return "", status.HTTP_406_NOT_ACCEPTABLE
+        products = Product.find_by_rating(rating)
         results = [product.serialize() for product in products if product.rating is not None]
         results.sort(key=lambda n: n["rating"], reverse=True)
-    elif price:
-        results.sort(key=lambda n: n["price"], reverse=True)
+    else:
+        products = Product.all()
+        results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK
 
