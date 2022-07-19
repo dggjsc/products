@@ -227,6 +227,10 @@ def update_price_of_product(product_id):
             status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
         )
     new_price = request.get_json()
+    if "price" not in new_price or new_price["price"] is None:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Price should be in dict name 'price'."
+        )
     if not isinstance(new_price["price"], float) and not isinstance(new_price["price"], int):
         abort(
             status.HTTP_406_NOT_ACCEPTABLE, description="Price should be of float or int datatype"
@@ -236,10 +240,9 @@ def update_price_of_product(product_id):
         abort(
             status.HTTP_406_NOT_ACCEPTABLE, description="New price out of range."
         )
-    if new_price["price"] is not None:
-        product.price = new_price["price"]
-        product.update()
-        app.logger.info("Price of product with ID [%s] updated.", product.id)
+    product.price = new_price["price"]
+    product.update()
+    app.logger.info("Price of product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
 

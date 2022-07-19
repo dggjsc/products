@@ -258,12 +258,12 @@ class TestYourResourceServer(TestCase):
         response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
-        self.assertEqual(updated_product["price"], float(MAX_PRICE))
+        self.assertAlmostEqual(updated_product["price"], float(MAX_PRICE))
         new_product["price"] = float(MIN_PRICE)
         response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
-        self.assertEqual(updated_product["price"], float(MIN_PRICE))
+        self.assertAlmostEqual(updated_product["price"], float(MIN_PRICE))
 
     ######################################################################
     #  T E S T   S A D   P A T H S
@@ -469,8 +469,8 @@ class TestYourResourceServer(TestCase):
         response = self.client.put(f"{BASE_URL}/{wrong_id}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_update_price_bad_route(self):
-        '''It should return 404/406 for bad update price request'''
+    def test_update_price_bad_id(self):
+        '''It should return 404 for bad id in update price'''
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -479,12 +479,28 @@ class TestYourResourceServer(TestCase):
 
         # update the product price
         new_product = {}
+        new_product["price"] = MAX_PRICE
+        response = self.client.put(f"{BASE_URL}/{id+1}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_price_bad_price(self):
+        '''It should return 406 for bad price in update price'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product price
+        new_product = {}
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["price"] = None
+        response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         new_product["price"] = MAX_PRICE + 1
         response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         new_product["price"] = str(MAX_PRICE)
         response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
-        new_product["price"] = MAX_PRICE
-        response = self.client.put(f"{BASE_URL}/{id+1}/price", json=new_product)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
