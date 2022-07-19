@@ -73,7 +73,7 @@ class Product(db.Model):
             self.id = None  # id must be none to generate next primary key
             db.session.add(self)
             db.session.commit()
-        except ValueError:
+        except Exception:
             db.session.rollback()
             raise DataValidationError(f"Error: name {self.name} already exists!")
 
