@@ -10,7 +10,7 @@ Describe what your service does here
 # from flask import Flask, request, url_for, jsonify, make_response, abort
 from flask import url_for, jsonify, request, abort
 from service.utils import status  # HTTP Status Codes
-from service.models import Product, MIN_PRICE, MAX_PRICE
+from service.models import Product, MIN_PRICE, MAX_PRICE, MAX_DESCRIPTION_LENGTH
 
 # Import Flask application
 from . import app
@@ -243,6 +243,43 @@ def update_price_of_product(product_id):
     product.price = new_price["price"]
     product.update()
     app.logger.info("Price of product with ID [%s] updated.", product.id)
+    return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# UPDATE THE DESCRIPTION OF A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>/description", methods=["PUT"])
+def update_description_of_product(product_id):
+    """
+    Updates the description of a product on the basis of feedback provided.
+    Args:
+        product_id (_type_): _description_
+    """
+    app.logger.info("Request to update the description of the product with id: %s", product_id)
+    check_content_type("application/json")
+    product = Product.find(product_id)
+    if not product:
+        app.logger.info("Product_id not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
+        )
+    new_description = request.get_json()
+    if "description" not in new_description or new_description["description"] is None:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Description should be in dict name 'description'."
+        )
+    if not isinstance(new_description["description"], str):
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Description should be of str datatype"
+        )
+    if len(new_description["description"]) > MAX_DESCRIPTION_LENGTH:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Description length over limit."
+        )
+    product.description = new_description["description"]
+    product.update()
+    app.logger.info("Description of product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
 

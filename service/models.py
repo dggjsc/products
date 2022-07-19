@@ -17,6 +17,7 @@ MIN_PRICE = 10.00
 MAX_PRICE = 100.00
 MIN_RATE = 0
 MAX_RATE = 5
+MAX_DESCRIPTION_LENGTH = 63
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
@@ -50,7 +51,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
     description = db.Column(
-        db.String(63), nullable=False, server_default=("unavailable")
+        db.String(MAX_DESCRIPTION_LENGTH), nullable=False, server_default=("unavailable")
     )
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
