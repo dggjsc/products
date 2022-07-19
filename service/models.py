@@ -8,6 +8,8 @@ import logging
 # from wsgiref import validate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
+
 
 # from tomlkit import integer
 MIN_PRICE = 10.00
@@ -45,7 +47,7 @@ class Product(db.Model):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63), nullable=False)
+    name = db.Column(db.String(63), nullable=False, unique=True)
     description = db.Column(
         db.String(63), nullable=False, server_default=("unavailable")
     )
@@ -61,10 +63,15 @@ class Product(db.Model):
         """
         Creates a product to the database
         """
-        logger.info("Creating %s", self.name)
-        self.id = None  # id must be none to generate next primary key
-        db.session.add(self)
-        db.session.commit()
+
+        try:
+            logger.info("Creating %s", self.name)
+            self.id = None  # id must be none to generate next primary key
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise DataValidationError(f"Error: name {self.name} already exists!")
 
     def update(self):
         """
@@ -101,6 +108,11 @@ class Product(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
+            # for name in db.Model["name"]:
+            #     if data["name"] == name:
+            #         raise DataValidationError(
+            #             "Duplicate name for [name]: " + str(data["name"])
+            #         )
             self.name = data["name"]
             self.description = data["description"]
             self.category = data["category"]
@@ -113,7 +125,8 @@ class Product(db.Model):
                     )
             else:
                 raise DataValidationError(
-                    "Invalid type for float [price]: " + str(type(data["price"]))
+                    "Invalid type for float [price]: " +
+                    str(type(data["price"]))
                 )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
@@ -136,7 +149,8 @@ class Product(db.Model):
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError("Invalid product: missing " + error.args[0])
+            raise DataValidationError(
+                "Invalid product: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Product: body of request contained bad or no data - "
