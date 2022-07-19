@@ -10,7 +10,7 @@ Describe what your service does here
 # from flask import Flask, request, url_for, jsonify, make_response, abort
 from flask import url_for, jsonify, request, abort
 from service.utils import status  # HTTP Status Codes
-from service.models import Product
+from service.models import Product, MIN_PRICE, MAX_PRICE
 
 # Import Flask application
 from . import app
@@ -205,6 +205,44 @@ def update_rating_of_product(product_id):
         product.rating = product.cumulative_ratings / product.no_of_users_rated
         product.update()
         app.logger.info("Product with ID [%s] updated.", product.id)
+    return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# UPDATE THE PRICE OF A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>/price", methods=["PUT"])
+def update_price_of_product(product_id):
+    """
+    Updates the price of a product on the basis of feedback provided.
+    Args:
+        product_id (_type_): _description_
+    """
+    app.logger.info("Request to update the price of the product with id: %s", product_id)
+    check_content_type("application/json")
+    product = Product.find(product_id)
+    if not product:
+        app.logger.info("Product_id not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
+        )
+    new_price = request.get_json()
+    if "price" not in new_price or new_price["price"] is None:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Price should be in dict name 'price'."
+        )
+    if not isinstance(new_price["price"], float) and not isinstance(new_price["price"], int):
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Price should be of float or int datatype"
+        )
+    new_price["price"] = float(new_price["price"])
+    if new_price["price"] < MIN_PRICE or new_price["price"] > MAX_PRICE:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="New price out of range."
+        )
+    product.price = new_price["price"]
+    product.update()
+    app.logger.info("Price of product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
 
