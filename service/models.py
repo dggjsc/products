@@ -12,7 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 # from tomlkit import boolean
 # from sqlalchemy import null
-
+# from . import app
 # from tomlkit import integer
 MIN_PRICE = 10.00
 MAX_PRICE = 100.00
@@ -300,3 +300,13 @@ class Product(db.Model):
         """
         logger.info("Processing price query for %s ...", price)
         return cls.query.filter(cls.price <= price)
+
+    @classmethod
+    def find_by_availability(cls) -> list:
+        """Returns all the products that are currently available
+
+        Returns:
+            list: returns the list of currently available products
+        """
+        logger.info("Processing availability query")
+        return cls.query.filter(cls.available)
