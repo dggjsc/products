@@ -15,7 +15,7 @@ from service.models import Product, MIN_PRICE, MAX_PRICE, MAX_DESCRIPTION_LENGTH
 # Import Flask application
 from . import app
 
-
+MAX_CATEGORY_LENGTH = 63
 ######################################################################
 # GET INDEX
 ######################################################################
@@ -60,8 +60,8 @@ def check_rating(rating_str):
         raise ValueError
     products = Product.find_by_rating(rating)
     results = [
-            product.serialize() for product in products if product.rating is not None
-        ]
+        product.serialize() for product in products if product.rating is not None
+    ]
     results.sort(key=lambda n: n["rating"], reverse=True)
     return results
 
@@ -136,7 +136,8 @@ def create_products():
     app.logger.info("Here Deserialization done")
     product.create()
     message = product.serialize()
-    location_url = url_for("get_products", product_id=product.id, _external=True)
+    location_url = url_for(
+        "get_products", product_id=product.id, _external=True)
 
     app.logger.info("Product with ID [%s] created.", product.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
@@ -248,7 +249,8 @@ def update_price_of_product(product_id):
     Args:
         product_id (_type_): _description_
     """
-    app.logger.info("Request to update the price of the product with id: %s", product_id)
+    app.logger.info(
+        "Request to update the price of the product with id: %s", product_id)
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
@@ -286,7 +288,8 @@ def update_description_of_product(product_id):
     Args:
         product_id (_type_): _description_
     """
-    app.logger.info("Request to update the description of the product with id: %s", product_id)
+    app.logger.info(
+        "Request to update the description of the product with id: %s", product_id)
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
@@ -308,6 +311,44 @@ def update_description_of_product(product_id):
             status.HTTP_406_NOT_ACCEPTABLE, description="Description length over limit."
         )
     product.description = new_description["description"]
+    product.update()
+    app.logger.info("Description of product with ID [%s] updated.", product.id)
+    return jsonify(product.serialize()), status.HTTP_200_OK
+
+######################################################################
+# UPDATE THE CATEGORY OF A PRODUCT
+######################################################################
+
+@app.route("/products/<int:product_id>/category", methods=["PUT"])
+def update_category_of_product(product_id):
+    """
+    Updates the category of a product on the basis of feedback provided.
+    Args:
+        product_id (_type_): _category_
+    """
+    app.logger.info(
+        "Request to update the category of the product with id: %s", product_id)
+    check_content_type("application/json")
+    product = Product.find(product_id)
+    if not product:
+        app.logger.info("Product_id not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND, category=f"Product with id '{product_id}' was not found."
+        )
+    new_category = request.get_json()
+    if "category" not in new_category or new_category["category"] is None:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, category="Category should be in dict name 'category'."
+        )
+    if not isinstance(new_category["category"], str):
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, category="Category should be of str datatype"
+        )
+    if len(new_category["category"]) > MAX_CATEGORY_LENGTH:
+        abort(
+            status.HTTP_406_NOT_ACCEPTABLE, description="Category length over limit."
+        )
+    product.category = new_category["category"]
     product.update()
     app.logger.info("Description of product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
