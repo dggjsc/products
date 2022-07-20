@@ -12,7 +12,7 @@ from unittest import TestCase
 # from unittest.mock import MagicMock, patch
 from service import app
 from service.models import Product
-from service.models import db, MIN_PRICE, MAX_PRICE
+from service.models import db, MIN_PRICE, MAX_PRICE, MAX_DESCRIPTION_LENGTH
 from service.routes import init_db
 from service.utils import status
 from tests.factories import ProductFactory  # HTTP Status Codes
@@ -281,6 +281,22 @@ class TestYourResourceServer(TestCase):
         updated_product = response.get_json()
         self.assertAlmostEqual(updated_product["price"], float(MIN_PRICE))
 
+    def test_update_description(self):
+        '''It should update the description of a product'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product description
+        new_product = {}
+        new_product["description"] = "THIS IS TEST DESCRIPTION"
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_product = response.get_json()
+        self.assertEqual(updated_product["description"], "THIS IS TEST DESCRIPTION")
+
     ######################################################################
     #  T E S T   S A D   P A T H S
     ######################################################################
@@ -515,4 +531,40 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         new_product["price"] = str(MAX_PRICE)
         response = self.client.put(f"{BASE_URL}/{id}/price", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+
+    def test_update_description_bad_id(self):
+        '''It should return 404 for bad id in update description'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product description
+        new_product = {}
+        new_product["description"] = "THIS IS TEST DESCRIPTION"
+        response = self.client.put(f"{BASE_URL}/{id+1}/description", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_description_bad_price(self):
+        '''It should return 406 for bad description in update description'''
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        id = response.get_json()["id"]
+
+        # update the product description
+        new_product = {}
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["description"] = None
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["description"] = 1
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        new_product["description"] = "a"*(MAX_DESCRIPTION_LENGTH+1)
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
