@@ -19,6 +19,8 @@ MAX_CATEGORY_LENGTH = 63
 ######################################################################
 # GET INDEX
 ######################################################################
+
+
 @app.route("/")
 def index():
     """Root URL response"""
@@ -136,8 +138,7 @@ def create_products():
     app.logger.info("Here Deserialization done")
     product.create()
     message = product.serialize()
-    location_url = url_for(
-        "get_products", product_id=product.id, _external=True)
+    location_url = url_for("get_products", product_id=product.id, _external=True)
 
     app.logger.info("Product with ID [%s] created.", product.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
@@ -250,28 +251,32 @@ def update_price_of_product(product_id):
         product_id (_type_): _description_
     """
     app.logger.info(
-        "Request to update the price of the product with id: %s", product_id)
+        "Request to update the price of the product with id: %s", product_id
+    )
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
         app.logger.info("Product_id not found.")
         abort(
-            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
+            status.HTTP_404_NOT_FOUND,
+            description=f"Product with id '{product_id}' was not found.",
         )
     new_price = request.get_json()
     if "price" not in new_price or new_price["price"] is None:
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="Price should be in dict name 'price'."
+            status.HTTP_406_NOT_ACCEPTABLE,
+            description="Price should be in dict name 'price'.",
         )
-    if not isinstance(new_price["price"], float) and not isinstance(new_price["price"], int):
+    if not isinstance(new_price["price"], float) and not isinstance(
+        new_price["price"], int
+    ):
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="Price should be of float or int datatype"
+            status.HTTP_406_NOT_ACCEPTABLE,
+            description="Price should be of float or int datatype",
         )
     new_price["price"] = float(new_price["price"])
     if new_price["price"] < MIN_PRICE or new_price["price"] > MAX_PRICE:
-        abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="New price out of range."
-        )
+        abort(status.HTTP_406_NOT_ACCEPTABLE, description="New price out of range.")
     product.price = new_price["price"]
     product.update()
     app.logger.info("Price of product with ID [%s] updated.", product.id)
@@ -289,22 +294,26 @@ def update_description_of_product(product_id):
         product_id (_type_): _description_
     """
     app.logger.info(
-        "Request to update the description of the product with id: %s", product_id)
+        "Request to update the description of the product with id: %s", product_id
+    )
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
         app.logger.info("Product_id not found.")
         abort(
-            status.HTTP_404_NOT_FOUND, description=f"Product with id '{product_id}' was not found."
+            status.HTTP_404_NOT_FOUND,
+            description=f"Product with id '{product_id}' was not found.",
         )
     new_description = request.get_json()
     if "description" not in new_description or new_description["description"] is None:
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="Description should be in dict name 'description'."
+            status.HTTP_406_NOT_ACCEPTABLE,
+            description="Description should be in dict name 'description'.",
         )
     if not isinstance(new_description["description"], str):
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="Description should be of str datatype"
+            status.HTTP_406_NOT_ACCEPTABLE,
+            description="Description should be of str datatype",
         )
     if len(new_description["description"]) > MAX_DESCRIPTION_LENGTH:
         abort(
@@ -315,9 +324,11 @@ def update_description_of_product(product_id):
     app.logger.info("Description of product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # UPDATE THE CATEGORY OF A PRODUCT
 ######################################################################
+
 
 @app.route("/products/<int:product_id>/category", methods=["PUT"])
 def update_category_of_product(product_id):
@@ -327,27 +338,29 @@ def update_category_of_product(product_id):
         product_id (_type_): _category_
     """
     app.logger.info(
-        "Request to update the category of the product with id: %s", product_id)
+        "Request to update the category of the product with id: %s", product_id
+    )
     check_content_type("application/json")
     product = Product.find(product_id)
     if not product:
         app.logger.info("Product_id not found.")
         abort(
-            status.HTTP_404_NOT_FOUND, category=f"Product with id '{product_id}' was not found."
+            status.HTTP_404_NOT_FOUND,
+            category=f"Product with id '{product_id}' was not found.",
         )
     new_category = request.get_json()
     if "category" not in new_category or new_category["category"] is None:
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, category="Category should be in dict name 'category'."
+            status.HTTP_406_NOT_ACCEPTABLE,
+            category="Category should be in dict name 'category'.",
         )
     if not isinstance(new_category["category"], str):
         abort(
-            status.HTTP_406_NOT_ACCEPTABLE, category="Category should be of str datatype"
+            status.HTTP_406_NOT_ACCEPTABLE,
+            category="Category should be of str datatype",
         )
     if len(new_category["category"]) > MAX_CATEGORY_LENGTH:
-        abort(
-            status.HTTP_406_NOT_ACCEPTABLE, description="Category length over limit."
-        )
+        abort(status.HTTP_406_NOT_ACCEPTABLE, description="Category length over limit.")
     product.category = new_category["category"]
     product.update()
     app.logger.info("Description of product with ID [%s] updated.", product.id)

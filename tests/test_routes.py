@@ -31,6 +31,8 @@ MAX_CATEGORY_LENGTH = 63
 ######################################################################
 #  T E S T   P R O D U C T  S E R V I C E
 ######################################################################
+
+
 class TestYourResourceServer(TestCase):
     """REST API Server Tests"""
 
@@ -167,8 +169,7 @@ class TestYourResourceServer(TestCase):
         new_product = response.get_json()
         logging.debug(new_product)
         new_product["category"] = "unknown"
-        response = self.client.put(
-            f"{BASE_URL}/{new_product['id']}", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{new_product['id']}", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
         self.assertEqual(updated_product["category"], "unknown")
@@ -229,21 +230,16 @@ class TestYourResourceServer(TestCase):
         price_products = [
             product for product in products if product.price <= test_price
         ]
-        response = self.client.get(
-            BASE_URL, query_string=f"price={str(test_price)}")
+        response = self.client.get(BASE_URL, query_string=f"price={str(test_price)}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(price_products))
 
     def test_query_list_by_availability(self):
-        '''It should Query Products by Availability'''
+        """It should Query Products by Availability"""
         products = self._create_products(10)
-        test_products = [
-            product for product in products if product.available is True]
-        response = self.client.get(
-            BASE_URL,
-            query_string="available=True"
-        )
+        test_products = [product for product in products if product.available is True]
+        response = self.client.get(BASE_URL, query_string="available=True")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(test_products))
@@ -265,7 +261,7 @@ class TestYourResourceServer(TestCase):
         self.assertAlmostEqual(new_product["rating"], 3)
 
     def test_update_price(self):
-        '''It should update the price of a product'''
+        """It should update the price of a product"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -286,7 +282,7 @@ class TestYourResourceServer(TestCase):
         self.assertAlmostEqual(updated_product["price"], float(MIN_PRICE))
 
     def test_update_description(self):
-        '''It should update the description of a product'''
+        """It should update the description of a product"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -296,15 +292,13 @@ class TestYourResourceServer(TestCase):
         # update the product description
         new_product = {}
         new_product["description"] = "THIS IS TEST DESCRIPTION"
-        response = self.client.put(
-            f"{BASE_URL}/{id}/description", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
-        self.assertEqual(
-            updated_product["description"], "THIS IS TEST DESCRIPTION")
+        self.assertEqual(updated_product["description"], "THIS IS TEST DESCRIPTION")
 
     def test_update_category(self):
-        '''It should update the category of a product'''
+        """It should update the category of a product"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -314,8 +308,7 @@ class TestYourResourceServer(TestCase):
         # update the product category
         new_product = {}
         new_product["category"] = "THIS IS TEST CATEGORY"
-        response = self.client.put(
-            f"{BASE_URL}/{id}/category", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id}/category", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_product = response.get_json()
         self.assertEqual(updated_product["category"], "THIS IS TEST CATEGORY")
@@ -332,8 +325,7 @@ class TestYourResourceServer(TestCase):
     def test_create_product_no_content_type(self):
         """It should not Create a Product with no content type"""
         response = self.client.post(BASE_URL)
-        self.assertEqual(response.status_code,
-                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create_product_bad_available(self):
         """It should not Create a Product with bad available data"""
@@ -510,20 +502,16 @@ class TestYourResourceServer(TestCase):
         wrong_id = new_product["id"] + 1
         myJson = {}
         myJson["rating"] = 3
-        response = self.client.put(
-            f"{BASE_URL}/{wrong_id}/rating", json=myJson)
+        response = self.client.put(f"{BASE_URL}/{wrong_id}/rating", json=myJson)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_sends_incorrect_availability_param(self):
-        '''The user sends an incorrect availability Parameter'''
-        response = self.client.get(
-            BASE_URL,
-            query_string="available=IncorrectString"
-        )
+        """The user sends an incorrect availability Parameter"""
+        response = self.client.get(BASE_URL, query_string="available=IncorrectString")
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_update_price_bad_id(self):
-        '''It should return 404 for bad id in update price'''
+        """It should return 404 for bad id in update price"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -533,12 +521,11 @@ class TestYourResourceServer(TestCase):
         # update the product price
         new_product = {}
         new_product["price"] = MAX_PRICE
-        response = self.client.put(
-            f"{BASE_URL}/{id+1}/price", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id+1}/price", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_price_bad_price(self):
-        '''It should return 406 for bad price in update price'''
+        """It should return 406 for bad price in update price"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -560,7 +547,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_update_description_bad_id(self):
-        '''It should return 404 for bad id in update description'''
+        """It should return 404 for bad id in update description"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -570,12 +557,11 @@ class TestYourResourceServer(TestCase):
         # update the product description
         new_product = {}
         new_product["description"] = "THIS IS TEST DESCRIPTION"
-        response = self.client.put(
-            f"{BASE_URL}/{id+1}/description", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id+1}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_description_bad_price(self):
-        '''It should return 406 for bad description in update description'''
+        """It should return 406 for bad description in update description"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
@@ -584,24 +570,20 @@ class TestYourResourceServer(TestCase):
 
         # update the product description
         new_product = {}
-        response = self.client.put(
-            f"{BASE_URL}/{id}/description", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         new_product["description"] = None
-        response = self.client.put(
-            f"{BASE_URL}/{id}/description", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         new_product["description"] = 1
-        response = self.client.put(
-            f"{BASE_URL}/{id}/description", json=new_product)
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
-        new_product["description"] = "a"*(MAX_DESCRIPTION_LENGTH+1)
-        response = self.client.put(
-            f"{BASE_URL}/{id}/description", json=new_product)
+        new_product["description"] = "a" * (MAX_DESCRIPTION_LENGTH + 1)
+        response = self.client.put(f"{BASE_URL}/{id}/description", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_update_category_bad_id(self):
-        '''It should return 404 for bad id in update category'''
+        """It should return 404 for bad id in update category"""
         # create a product to update
         test_product = ProductFactory()
         response = self.client.post(BASE_URL, json=test_product.serialize())
