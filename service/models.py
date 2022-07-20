@@ -52,7 +52,9 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False, unique=True)
     description = db.Column(
-        db.String(MAX_DESCRIPTION_LENGTH), nullable=False, server_default=("unavailable")
+        db.String(MAX_DESCRIPTION_LENGTH),
+        nullable=False,
+        server_default=("unavailable"),
     )
     category = db.Column(db.String(63), nullable=False)
     price = db.Column(db.Float(), nullable=False)
