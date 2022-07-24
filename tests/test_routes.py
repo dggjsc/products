@@ -86,10 +86,7 @@ class TestYourResourceServer(TestCase):
         """It should call the Home Page"""
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        self.assertEqual(data["name"], "Product REST API Service")
-        self.assertEqual(data["version"], "1.0")
-        self.assertEqual(data["paths"], "http://localhost/products")
+        self.assertIn(b"Product Demo REST API Service", resp.data)
 
     def test_get_product_list(self):
         """It should Get a list of Products"""
