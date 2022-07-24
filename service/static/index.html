@@ -16,29 +16,29 @@
       <div class="row">
         <div class="column col-md-10">
           <p class='description'>
-            GET <a href="/pets" id = "get_pets">/pets</a> to see all the pets.
+            GET <a href="/products" id = "get_products">/products</a> to see all the products.
             <br>
-            GET <a href="/pets?category=dog">/pets?category=dog</a> to see all of the pets in the 'dog' category.
+            GET <a href="/products?category=dog">/products?category=dog</a> to see all of the products in the 'dog' category.
             <br>
-            GET /pets/{id} retrieves a pet from the DB using an ID.
+            GET /products/{id} retrieves a product from the DB using an ID.
             <br>
-            PUT /pets/{id} updates a pet using an ID.
+            PUT /products/{id} updates a product using an ID.
             <br>
-            DELETE /pets/{id} removes a pet from the DB using an ID.
+            DELETE /products/{id} removes a product from the DB using an ID.
             <br>
-            POST /pets creates an new pet.
+            POST /products creates an new product.
           </p>
         </div>
         <div class="column col-md-2">
           <img src="static/images/newapp-icon.png" alt="Product Shop" width="150" height="150">
-          <!-- <img src="static/images/pet-shop.png" alt="Product Shop" height="150"> -->
+          <!-- <img src="static/images/product-shop.png" alt="Product Shop" height="150"> -->
         </div>
       </div>
       <p>Example JSON Data:</p>
       <pre>{"name": "Bowser", "category": "Dog", "gender": "MALE", "available": "True", "birthday": "2022-05-11"}</pre>
 
       <!-- FORM -->
-      <form id="create_pets" action="/pets" method="post" enctype="application/json">      
+      <form id="create_products" action="/products" method="post" enctype="application/json">      
       <div class="col-md-12" id="form_data">
         <h3>Enter information to Create a Product:</h3>
         <div class="well">
