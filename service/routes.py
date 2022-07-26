@@ -50,7 +50,7 @@ def check_price(price):
 
 def check_rating(rating_str):
     rating = float(rating_str)
-    if rating <= 0 or rating > 5:
+    if rating < 1 or rating > 5:
         raise ValueError
     products = Product.find_by_rating(rating)
     results = [
@@ -80,26 +80,25 @@ def list_products():
     if category:
         results = check_category(category)
         results_all = eliminate_product(results_all, results)
-    elif price:
+    if price:
         try:
             results = check_price(price)
             results_all = eliminate_product(results_all, results)
         except ValueError:
             return "", status.HTTP_406_NOT_ACCEPTABLE
-    elif rating_str:
+    if rating_str:
         try:
             results = check_rating(rating_str)
             results_all = eliminate_product(results_all, results)
         except ValueError:
             return "", status.HTTP_406_NOT_ACCEPTABLE
-    elif available:
+    if available:
         if available != "True":
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_availability()
         results = [product.serialize() for product in products]
         results_all = eliminate_product(results_all, results)
-    else:
-        pass
+
     app.logger.info("Returning %d products", len(results_all))
     return jsonify(results_all), status.HTTP_200_OK
 
@@ -227,7 +226,7 @@ def update_rating_of_product(product_id):
         myJson = product.serialize()
         product.deserialize(myJson)
         product.id = product_id
-        if product.no_of_users_rated is None or product.no_of_users_rated == 0:
+        if product.rating is None or product.no_of_users_rated == 0:
             product.no_of_users_rated = 1
             product.rating = float(new_rating["rating"])
         else:

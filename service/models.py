@@ -60,7 +60,7 @@ class Product(db.Model):
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
     rating = db.Column(db.Float, nullable=True)
-    no_of_users_rated = db.Column(db.Integer, default=0)
+    no_of_users_rated = db.Column(db.Integer, nullable=False, default=0)
 
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
@@ -166,19 +166,29 @@ class Product(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["name"]
-            self.description = data["description"]
-            self.category = data["category"]
-            self.check_price(data["price"])
-            self.check_available(data["available"])
+            if "name" in data:
+                if not isinstance(data["name"], str):
+                    raise TypeError
+                self.name = data["name"]
+            if "description" in data:
+                if not isinstance(data["description"], str):
+                    raise TypeError
+                self.description = data["description"]
+            if "category" in data:
+                self.category = data["category"]
+                if not isinstance(data["category"], str):
+                    raise TypeError
+                self.description = data["description"]
+            if "price" in data:
+                self.check_price(data["price"])
+            if "available" in data:
+                self.check_available(data["available"])
             if "rating" in data:
                 self.check_rating(data["rating"])
             if "no_of_users_rated" in data:
                 self.check_no_of_users_rated(data["no_of_users_rated"])
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
-        except KeyError as error:
-            raise DataValidationError("Invalid product: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Product: body of request contained bad or no data - "

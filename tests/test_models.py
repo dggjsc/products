@@ -242,15 +242,12 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.rating, data["rating"])
         self.assertEqual(product.no_of_users_rated, data["no_of_users_rated"])
 
-    def test_deserialize_missing_data(self):
-        """It should not deserialize a Product with missing data"""
-        data = {"id": 1, "name": "shirt", "description": "Relaxed Fit"}
-        product = Product()
-        self.assertRaises(DataValidationError, product.deserialize, data)
-
     def test_deserialize_bad_data(self):
         """It should not deserialize bad data"""
-        data = "this is not a dictionary"
+        data = {"name": 5.0}
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+        data = {"price": "50.0"}
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
 
