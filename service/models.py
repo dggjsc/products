@@ -143,20 +143,37 @@ class Product(db.Model):
             self.rating = None
 
     def check_no_of_users_rated(self, no_of_users_rated):
-        if no_of_users_rated is not None:
-            if isinstance(no_of_users_rated, int):
-                if no_of_users_rated >= 0:
-                    self.no_of_users_rated = no_of_users_rated
-                else:
-                    raise DataValidationError(
-                        "Invalid Range for [no_of_users_rated]: "
-                        + str(no_of_users_rated)
-                    )
+        if isinstance(no_of_users_rated, int):
+            if no_of_users_rated >= 0:
+                self.no_of_users_rated = no_of_users_rated
             else:
                 raise DataValidationError(
-                    "Invalid Type for [no_of_users_rated]: "
-                    + str(type(no_of_users_rated))
+                    "Invalid Range for [no_of_users_rated]: "
+                    + str(no_of_users_rated)
                 )
+        else:
+            raise DataValidationError(
+                "Invalid Type for [no_of_users_rated]: "
+                + str(type(no_of_users_rated))
+            )
+
+    def check_name(self, name):
+        if not isinstance(name, str):
+            raise TypeError
+        else:
+            self.name = name
+
+    def check_description(self, description):
+        if not isinstance(description, str):
+            raise TypeError
+        else:
+            self.description = description
+
+    def check_category(self, category):
+        if not isinstance(category, str):
+            raise TypeError
+        else:
+            self.category = category
 
     def deserialize(self, data: dict):
         """
@@ -167,18 +184,11 @@ class Product(db.Model):
         """
         try:
             if "name" in data:
-                if not isinstance(data["name"], str):
-                    raise TypeError
-                self.name = data["name"]
+                self.check_name(data["name"])
             if "description" in data:
-                if not isinstance(data["description"], str):
-                    raise TypeError
-                self.description = data["description"]
+                self.check_description(data["description"])
             if "category" in data:
-                self.category = data["category"]
-                if not isinstance(data["category"], str):
-                    raise TypeError
-                self.description = data["description"]
+                self.check_category(data["category"])
             if "price" in data:
                 self.check_price(data["price"])
             if "available" in data:
@@ -187,8 +197,6 @@ class Product(db.Model):
                 self.check_rating(data["rating"])
             if "no_of_users_rated" in data:
                 self.check_no_of_users_rated(data["no_of_users_rated"])
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Product: body of request contained bad or no data - "

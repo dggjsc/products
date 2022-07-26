@@ -226,16 +226,16 @@ class TestYourResourceServer(TestCase):
         test_price = products[0].price
         test_rating = int(products[0].rating)
         target_products = [
-            product for product in products 
+            product for product in products
             if product.price <= test_price and product.rating >= test_rating
         ]
         response = self.client.get(f"{BASE_URL}?price={str(test_price)}&rating={str(test_rating)}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(target_products))
-        
+
         target_products = [
-            product for product in products 
+            product for product in products
             if product.price <= test_price and product.available is True
         ]
         response = self.client.get(f"{BASE_URL}?price={str(test_price)}&available=True")
