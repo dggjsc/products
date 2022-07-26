@@ -60,25 +60,36 @@ def check_rating(rating_str):
     return results
 
 
+def eliminate_product(products_all, products):
+    result = []
+    for product in products_all:
+        if product in products:
+            result.append(product)
+    return result
+
+
 @app.route("/products", methods=["GET"])
 def list_products():
     app.logger.info("Request for Product List")
-    products = []
-    results = []
+    products_all = Product.all()
+    results_all = [product.serialize() for product in products_all]
     rating_str = request.args.get("rating")
     category = request.args.get("category")
     price = request.args.get("price")
     available = request.args.get("available")
     if category:
         results = check_category(category)
+        results_all = eliminate_product(results_all, results)
     elif price:
         try:
             results = check_price(price)
+            results_all = eliminate_product(results_all, results)
         except ValueError:
             return "", status.HTTP_406_NOT_ACCEPTABLE
     elif rating_str:
         try:
             results = check_rating(rating_str)
+            results_all = eliminate_product(results_all, results)
         except ValueError:
             return "", status.HTTP_406_NOT_ACCEPTABLE
     elif available:
@@ -86,11 +97,11 @@ def list_products():
             return "", status.HTTP_406_NOT_ACCEPTABLE
         products = Product.find_by_availability()
         results = [product.serialize() for product in products]
+        results_all = eliminate_product(results_all, results)
     else:
-        products = Product.all()
-        results = [product.serialize() for product in products]
-    app.logger.info("Returning %d products", len(results))
-    return jsonify(results), status.HTTP_200_OK
+        pass
+    app.logger.info("Returning %d products", len(results_all))
+    return jsonify(results_all), status.HTTP_200_OK
 
 
 ######################################################################
@@ -218,15 +229,11 @@ def update_rating_of_product(product_id):
         product.id = product_id
         if product.no_of_users_rated is None or product.no_of_users_rated == 0:
             product.no_of_users_rated = 1
+            product.rating = float(new_rating["rating"])
         else:
+            product.rating = float(product.rating * product.no_of_users_rated + new_rating["rating"])\
+             / (product.no_of_users_rated+1)
             product.no_of_users_rated = product.no_of_users_rated + 1
-        if product.cumulative_ratings is None or product.cumulative_ratings == 0:
-            product.cumulative_ratings = new_rating["rating"]
-        else:
-            product.cumulative_ratings = (
-                product.cumulative_ratings + new_rating["rating"]
-            )
-        product.rating = product.cumulative_ratings / product.no_of_users_rated
         product.update()
         app.logger.info("Product with ID [%s] updated.", product.id)
     return jsonify(product.serialize()), status.HTTP_200_OK
@@ -338,18 +345,18 @@ def update_category_of_product(product_id):
         app.logger.info("Product_id not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            category=f"Product with id '{product_id}' was not found.",
+            description=f"Product with id '{product_id}' was not found.",
         )
     new_category = request.get_json()
     if "category" not in new_category or new_category["category"] is None:
         abort(
             status.HTTP_406_NOT_ACCEPTABLE,
-            category="Category should be in dict name 'category'.",
+            description="Category should be in dict name 'category'.",
         )
     if not isinstance(new_category["category"], str):
         abort(
             status.HTTP_406_NOT_ACCEPTABLE,
-            category="Category should be of str datatype",
+            description="Category should be of str datatype",
         )
     if len(new_category["category"]) > MAX_CATEGORY_LENGTH:
         abort(status.HTTP_406_NOT_ACCEPTABLE, description="Category length over limit.")

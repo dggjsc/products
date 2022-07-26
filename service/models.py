@@ -60,7 +60,6 @@ class Product(db.Model):
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
     rating = db.Column(db.Float, nullable=True)
-    cumulative_ratings = db.Column(db.Integer, default=0)
     no_of_users_rated = db.Column(db.Integer, default=0)
 
     def __repr__(self):
@@ -105,7 +104,6 @@ class Product(db.Model):
             "price": self.price,
             "available": self.available,
             "rating": self.rating,
-            "cumulative_ratings": self.cumulative_ratings,
             "no_of_users_rated": self.no_of_users_rated,
         }
 
@@ -141,22 +139,8 @@ class Product(db.Model):
                 raise DataValidationError(
                     "Invalid type for [rating]: " + str(type(rating))
                 )
-
-    def check_cumulative_ratings(self, cumulative_ratings):
-        if cumulative_ratings is not None:
-            if isinstance(cumulative_ratings, int):
-                if cumulative_ratings >= 0:
-                    self.cumulative_ratings = cumulative_ratings
-                else:
-                    raise DataValidationError(
-                        "Invalid Range for [cumulative_ratings]: "
-                        + str(cumulative_ratings)
-                    )
-            else:
-                raise DataValidationError(
-                    "Invalid Type for [cumulative_ratings]: "
-                    + str(type(cumulative_ratings))
-                )
+        else:
+            self.rating = None
 
     def check_no_of_users_rated(self, no_of_users_rated):
         if no_of_users_rated is not None:
@@ -189,8 +173,6 @@ class Product(db.Model):
             self.check_available(data["available"])
             if "rating" in data:
                 self.check_rating(data["rating"])
-            if "cumulative_ratings" in data:
-                self.check_cumulative_ratings(data["cumulative_ratings"])
             if "no_of_users_rated" in data:
                 self.check_no_of_users_rated(data["no_of_users_rated"])
         except AttributeError as error:
