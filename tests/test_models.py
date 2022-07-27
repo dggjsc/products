@@ -75,7 +75,6 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.description, "relaxed")
         self.assertEqual(product.price, 20.0)
         self.assertEqual(product.rating, None)
-        self.assertEqual(product.cumulative_ratings, None)
         self.assertEqual(product.no_of_users_rated, None)
 
     def test_delete_a_product(self):
@@ -103,7 +102,6 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(found_product.price, product.price)
         self.assertEqual(found_product.available, product.available)
         self.assertEqual(found_product.rating, product.rating)
-        self.assertEqual(found_product.cumulative_ratings, product.cumulative_ratings)
         self.assertEqual(found_product.no_of_users_rated, product.no_of_users_rated)
 
     def test_list_all_products(self):
@@ -136,7 +134,6 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.price, products[1].price)
         self.assertEqual(product.available, products[1].available)
         self.assertAlmostEqual(product.rating, products[1].rating)
-        self.assertEqual(product.cumulative_ratings, products[1].cumulative_ratings)
         self.assertEqual(product.no_of_users_rated, products[1].no_of_users_rated)
 
     def test_add_a_product(self):
@@ -227,8 +224,6 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(data["available"], product.available)
         self.assertIn("rating", data)
         self.assertEqual(data["rating"], product.rating)
-        self.assertIn("cumulative_ratings", data)
-        self.assertEqual(data["cumulative_ratings"], product.cumulative_ratings)
         self.assertIn("no_of_users_rated", data)
         self.assertEqual(data["no_of_users_rated"], product.no_of_users_rated)
 
@@ -245,18 +240,14 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(product.price, data["price"])
         self.assertEqual(product.available, data["available"])
         self.assertEqual(product.rating, data["rating"])
-        self.assertEqual(product.cumulative_ratings, data["cumulative_ratings"])
         self.assertEqual(product.no_of_users_rated, data["no_of_users_rated"])
-
-    def test_deserialize_missing_data(self):
-        """It should not deserialize a Product with missing data"""
-        data = {"id": 1, "name": "shirt", "description": "Relaxed Fit"}
-        product = Product()
-        self.assertRaises(DataValidationError, product.deserialize, data)
 
     def test_deserialize_bad_data(self):
         """It should not deserialize bad data"""
-        data = "this is not a dictionary"
+        data = {"name": 5.0}
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+        data = {"price": "50.0"}
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
 
@@ -313,22 +304,6 @@ class TestProduct(unittest.TestCase):
         test_product = ProductFactory()
         data = test_product.serialize()
         data["rating"] = "string!"
-        product = Product()
-        self.assertRaises(DataValidationError, product.deserialize, data)
-
-    def test_deserialize_bad_cumulative_rating(self):
-        """It should not deserialize a bad cumulative rating attribute"""
-        test_product = ProductFactory()
-        data = test_product.serialize()
-        data["cumulative_ratings"] = "string"
-        product = Product()
-        self.assertRaises(DataValidationError, product.deserialize, data)
-
-    def test_deserialize_neg_cumulative_rating(self):
-        """It should not deserialize a negative a cumulative data"""
-        test_product = ProductFactory()
-        data = test_product.serialize()
-        data["cumulative_ratings"] = -1
         product = Product()
         self.assertRaises(DataValidationError, product.deserialize, data)
 

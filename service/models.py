@@ -60,8 +60,7 @@ class Product(db.Model):
     price = db.Column(db.Float(), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
     rating = db.Column(db.Float, nullable=True)
-    cumulative_ratings = db.Column(db.Integer, default=0)
-    no_of_users_rated = db.Column(db.Integer, default=0)
+    no_of_users_rated = db.Column(db.Integer, nullable=False, default=0)
 
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
@@ -70,15 +69,20 @@ class Product(db.Model):
         """
         Creates a product to the database
         """
-
         try:
             logger.info("Creating %s", self.name)
             self.id = None  # id must be none to generate next primary key
             db.session.add(self)
             db.session.commit()
-        except Exception:
+        except Exception as error:
             db.session.rollback()
-            raise DataValidationError(f"Error: name {self.name} already exists!")
+            # raise DataValidationError(error.args[0])
+            if "UniqueViolation" in error.args[0]:
+                raise DataValidationError(f"Error: name {self.name} already exists!")
+            elif "NotNullViolation" in error.args[0]:
+                raise DataValidationError(f"Error: Some none-null vaiable not provided. {error.args[0]}")
+            else:
+                raise DataValidationError("Error: Something happened when creating new product.")
 
     def update(self):
         """
@@ -105,7 +109,6 @@ class Product(db.Model):
             "price": self.price,
             "available": self.available,
             "rating": self.rating,
-            "cumulative_ratings": self.cumulative_ratings,
             "no_of_users_rated": self.no_of_users_rated,
         }
 
@@ -141,38 +144,41 @@ class Product(db.Model):
                 raise DataValidationError(
                     "Invalid type for [rating]: " + str(type(rating))
                 )
-
-    def check_cumulative_ratings(self, cumulative_ratings):
-        if cumulative_ratings is not None:
-            if isinstance(cumulative_ratings, int):
-                if cumulative_ratings >= 0:
-                    self.cumulative_ratings = cumulative_ratings
-                else:
-                    raise DataValidationError(
-                        "Invalid Range for [cumulative_ratings]: "
-                        + str(cumulative_ratings)
-                    )
-            else:
-                raise DataValidationError(
-                    "Invalid Type for [cumulative_ratings]: "
-                    + str(type(cumulative_ratings))
-                )
+        else:
+            self.rating = None
 
     def check_no_of_users_rated(self, no_of_users_rated):
-        if no_of_users_rated is not None:
-            if isinstance(no_of_users_rated, int):
-                if no_of_users_rated >= 0:
-                    self.no_of_users_rated = no_of_users_rated
-                else:
-                    raise DataValidationError(
-                        "Invalid Range for [no_of_users_rated]: "
-                        + str(no_of_users_rated)
-                    )
+        if isinstance(no_of_users_rated, int):
+            if no_of_users_rated >= 0:
+                self.no_of_users_rated = no_of_users_rated
             else:
                 raise DataValidationError(
-                    "Invalid Type for [no_of_users_rated]: "
-                    + str(type(no_of_users_rated))
+                    "Invalid Range for [no_of_users_rated]: "
+                    + str(no_of_users_rated)
                 )
+        else:
+            raise DataValidationError(
+                "Invalid Type for [no_of_users_rated]: "
+                + str(type(no_of_users_rated))
+            )
+
+    def check_name(self, name):
+        if not isinstance(name, str):
+            raise TypeError
+        else:
+            self.name = name
+
+    def check_description(self, description):
+        if not isinstance(description, str):
+            raise TypeError
+        else:
+            self.description = description
+
+    def check_category(self, category):
+        if not isinstance(category, str):
+            raise TypeError
+        else:
+            self.category = category
 
     def deserialize(self, data: dict):
         """
@@ -182,21 +188,20 @@ class Product(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["name"]
-            self.description = data["description"]
-            self.category = data["category"]
-            self.check_price(data["price"])
-            self.check_available(data["available"])
+            if "name" in data:
+                self.check_name(data["name"])
+            if "description" in data:
+                self.check_description(data["description"])
+            if "category" in data:
+                self.check_category(data["category"])
+            if "price" in data:
+                self.check_price(data["price"])
+            if "available" in data:
+                self.check_available(data["available"])
             if "rating" in data:
                 self.check_rating(data["rating"])
-            if "cumulative_ratings" in data:
-                self.check_cumulative_ratings(data["cumulative_ratings"])
             if "no_of_users_rated" in data:
                 self.check_no_of_users_rated(data["no_of_users_rated"])
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0])
-        except KeyError as error:
-            raise DataValidationError("Invalid product: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Product: body of request contained bad or no data - "
