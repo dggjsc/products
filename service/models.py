@@ -69,15 +69,20 @@ class Product(db.Model):
         """
         Creates a product to the database
         """
-
         try:
             logger.info("Creating %s", self.name)
             self.id = None  # id must be none to generate next primary key
             db.session.add(self)
             db.session.commit()
-        except Exception:
+        except Exception as error:
             db.session.rollback()
-            raise DataValidationError(f"Error: name {self.name} already exists!")
+            # raise DataValidationError(error.args[0])
+            if "UniqueViolation" in error.args[0]:
+                raise DataValidationError(f"Error: name {self.name} already exists!")
+            elif "NotNullViolation" in error.args[0]:
+                raise DataValidationError(f"Error: Some none-null vaiable not provided. {error.args[0]}")
+            else:
+                raise DataValidationError("Error: Something happened when creating new product.")
 
     def update(self):
         """
